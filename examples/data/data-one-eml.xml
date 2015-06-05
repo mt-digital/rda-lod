@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.0.1" xmlns:stmml="http://www.xml-cml.org/schema/stmml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ds="eml://ecoinformatics.org/dataset-2.0.1" packageId="nrs.692.1" system="knb" xsi:schemaLocation="eml://ecoinformatics.org/eml-2.0.1 eml.xsd" scope="system">
+  <!--Person who filled in the catalog entry form: Lyla  Hunt-->
+  <!--Form filled out at Fri Nov 18 01:25:34 2005 GMT-->
+  <dataset scope="document">
+    <alternateIdentifier system="Sagehen Creek Field Station">#53 Decker 1984</alternateIdentifier>
+    <title>Distribution, Abundance, and Coexistence of Two Species of Sucker (Catostomus) in Sagehen Creek, California and Their Status in the Western Lahontan Basin</title>
+    <creator scope="document">
+      <organizationName>Sagehen Creek Field Station</organizationName>
+    </creator>
+    <creator scope="document">
+      <organizationName>University of California Natural Reserve System</organizationName>
+    </creator>
+    <creator scope="document">
+      <individualName>
+        <givenName>Lynn Marie</givenName>
+        <surName>Decker</surName>
+      </individualName>
+      <organizationName>Sagehen Creek Field Station (UC Berkeley)</organizationName>
+      <address scope="document">
+        <administrativeArea>Select state or territory here.</administrativeArea>
+      </address>
+    </creator>
+    <metadataProvider scope="document">
+      <individualName>
+        <givenName>Lyla</givenName>
+        <surName>Hunt</surName>
+      </individualName>
+    </metadataProvider>
+    <associatedParty scope="document">
+      <individualName>
+        <givenName>Don C.</givenName>
+        <surName>Erman</surName>
+      </individualName>
+      <role>Co-owner</role>
+    </associatedParty>
+    <associatedParty scope="document">
+      <individualName>
+        <givenName>Peter B.</givenName>
+        <surName>Moyle</surName>
+      </individualName>
+      <role>Co-owner</role>
+    </associatedParty>
+    <associatedParty scope="document">
+      <individualName>
+        <givenName>Dale R.</givenName>
+        <surName>Mc Cullough</surName>
+      </individualName>
+      <role>Co-owner</role>
+    </associatedParty>
+    <abstract>
+      <para>MASTERS THESIS: In 1982 (the researcher) initiated a study to examine any differences in the distribution and abundance between mountain and Tahoe sucker and to determine how these two similar species coexist in Sagehen Creek. Early in the study (she) noticed that the relative abundance of these species had shifted dramatically when compared to earlier reports. IN addition to Sagehen Creek, four nearby streams were surveyed in 1982 to locate both species. At all sites mountain sucker were either absent or rare and only 10 individuals were eventually collected. The apparent scarcity of mountain sucker was perplexing; early records had shown mountain sucker were not only present and abundant but were also more numerous than the associated Tahoe sucker at these sites. (She) expanded the study to address the following objectives: 1. To determine if significant shifts in the relative abundance of suckers have occurred in Sagehen Creek since early surveys, 2. To determine if similar shifts have occurred elsewhere, 3. To distinguish differences in the distribution and abundance between the two species of sucker in Sagehen Creek where both species still exist, and 4. To determine how mountain and Tahoe sucker manage to coexist in a relatively small segment of stream.</para>
+    </abstract>
+    <keywordSet>
+      <keyword keywordType="place">Sagehen Creek</keyword>
+      <keywordThesaurus>None</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword keywordType="taxonomic">Tahoe Sucker</keyword>
+      <keywordThesaurus>None</keywordThesaurus>
+    </keywordSet>
+    <keywordSet>
+      <keyword keywordType="taxonomic">Mountain Sucker</keyword>
+      <keywordThesaurus>None</keywordThesaurus>
+    </keywordSet>
+    <additionalInfo>
+      <para>* The above geographic coordinates refer to Sagehen Creek Field Station.</para>
+    </additionalInfo>
+    <intellectualRights>
+      <para>Obtain permission from data set owner(s)</para>
+    </intellectualRights>
+    <distribution scope="document">
+      <offline>
+        <mediumName>hardcopy</mediumName>
+      </offline>
+    </distribution>
+    <coverage scope="document">
+      <temporalCoverage scope="document">
+        <rangeOfDates>
+          <beginDate>
+            <calendarDate>1982-07-21</calendarDate>
+          </beginDate>
+          <endDate>
+            <calendarDate>1983-09-22</calendarDate>
+          </endDate>
+        </rangeOfDates>
+      </temporalCoverage>
+      <geographicCoverage scope="document">
+        <geographicDescription>Sagehen Creek is in the Tahoe National Forest 12.1 km north of Truckee, California. Study sites included Sagehen Creek, Sierra and Nevada Co., CA.; Little Truckee River, Sierra Co., CA; Prosser Creek, Nevada Co., CA.; Martis Creek, Nevada Co., CA.; A tributary to the Carson River at Dayton, Lyon Co., NV.; Hot Creek, Eureka Co., NV.; and North Fork of the Humboldt River, Elko Co., NV.</geographicDescription>
+        <boundingCoordinates>
+          <westBoundingCoordinate>-120.2367</westBoundingCoordinate>
+          <eastBoundingCoordinate>-120.2367</eastBoundingCoordinate>
+          <northBoundingCoordinate>39.4317</northBoundingCoordinate>
+          <southBoundingCoordinate>39.4317</southBoundingCoordinate>
+        </boundingCoordinates>
+      </geographicCoverage>
+      <taxonomicCoverage scope="document">
+        <generalTaxonomicCoverage>x</generalTaxonomicCoverage>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Catastomus platyrhynchus</taxonRankValue>
+        </taxonomicClassification>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Catostomus tahoensis</taxonRankValue>
+        </taxonomicClassification>
+      </taxonomicCoverage>
+    </coverage>
+    <contact scope="document">
+      <individualName>
+        <givenName>Jeff</givenName>
+        <surName>Brown</surName>
+      </individualName>
+      <organizationName>Sagehen Creek Field Station</organizationName>
+      <address scope="document">
+        <deliveryPoint>P.O. Box 939/ 11616 Sagehen Rd.</deliveryPoint>
+        <city>Truckee</city>
+        <administrativeArea>Select state or territory here.</administrativeArea>
+        <postalCode>96160</postalCode>
+        <country>USA</country>
+      </address>
+      <phone phonetype="voice">(530) 587-4830</phone>
+      <phone phonetype="Fax">(530) 582-4031</phone>
+      <electronicMailAddress>sagehen@berkeley.edu</electronicMailAddress>
+    </contact>
+    <methods>
+      <methodStep>
+        <description>
+          <section>
+            <title>Methods</title>
+            <para>Number, age class, and location of each fish species were recorded along the 1200 m study reach. Surveys were completed by snorkely survey. Habitat measurements were taken. In addition, the behavior and activity of both species of sucker were observed from an underwater stream observation tank.... at different densities.</para>
+          </section>
+        </description>
+      </methodStep>
+      <sampling>
+        <studyExtent>
+          <description>
+            <para>Surveys to determine the distribution and abundance of suckers within the Sagehen Creek study reach were completed once every two weeks from 7 June to 30 August 1983 and once more on 22 September. Three sets of observations were made on the behavior and activity of the two species between 21 July and 6 September 1982.</para>
+          </description>
+        </studyExtent>
+        <samplingDescription>
+          <para>The Sagehen Creek study reach was located in the lower meadow area....was 1200 m in length....and was divided into 12 sections 100m each in length.</para>
+        </samplingDescription>
+      </sampling>
+    </methods>
+    <access authSystem="knb" order="denyFirst" scope="document">
+      <allow>
+        <principal>uid=nrsadmin,o=NCEAS,dc=ecoinformatics,dc=org</principal>
+        <permission>all</permission>
+      </allow>
+      <allow>
+        <principal>uid=Sagehen,o=UCNRS,dc=ecoinformatics,dc=org</principal>
+        <permission>all</permission>
+      </allow>
+      <allow>
+        <principal>public</principal>
+        <permission>read</permission>
+      </allow>
+    </access>
+  </dataset>
+</eml:eml>
