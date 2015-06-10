@@ -2,17 +2,31 @@
 
 ## Matthew Turner
 
-### June 4, 2015
+### June 10, 2015
 
-One goal in the process of creating linked data is translation of the
-metadata into an HCLS-compliant RDF representation. However if we simply
-translate exactly what is currently present in the DDI and DataONE repositories,
-we won't have linked data. 
+Put simply, the goal of this project is to enable discovery of interdisciplinary
+data that is related. Specifically, we will explore linking DDI metadata records
+with DataONE metadata records as a test case. 
 
-We will therefore need to annotate the given information with linkages.
-For example, in this [example DataONE EML metadata
-record](https://cn.dataone.org/cn/v1/object/doi:10.5063%2FAA%2Fnrs.692.1), there
-is a section for geography
+This project will procede by the following steps:
+
+1. Create RDF translations, including geographic and temporal information, of 
+an initially small set of DDI and DataONE metadata records
+
+2. Demonstrate geospatially-enabled SPARQL queries
+    a. Stand up a geospatially-enabled SPARQL endpoint. 
+    b. Generate appropriate SPARQL queries for finding spatially- and
+        temorally-related datasets via their metadata
+
+3. Create user interface for 1 and 2
+
+4. Make the translations conform to [W3C Health Care and Life Sciences
+(HCLS)](http://www.w3.org/2001/sw/hcls/notes/hcls-dataset/) standard
+
+
+Here is an [example DataONE EML metadata
+record](https://cn.dataone.org/cn/v1/object/doi:10.5063%2FAA%2Fnrs.692.1)'s
+bounding box section
 
 ```xml
 <boundingCoordinates>
@@ -23,37 +37,31 @@ is a section for geography
 </boundingCoordinates>
 ```
 
-We could use the GeoNames API to look up the closest known entity
-to the center of that bounding box by the following query
+We can trivially extract the centroid from this bounding box. Then we can 
+get nearby features as shown by this 
+[query to get cities within 20 miles of the centroid](http://geosparql.appspot.com/search?q=SELECT++%3Fname+%3Fcountry+%3Fpopulation%0D%0AWHERE%0D%0A++{+%0D%0A+++++%3Fcity+gs%3Anearby%2842.705387+-120+10%29+.%0D%0A+++++%3Fcity+gn%3Aname+%3Fname+.%0D%0A+++++%3Fcity+gn%3AinCountry+%3Fcountry+.%0D%0A+++++%3Fcity+gn%3Apopulation+%3Fpopulation%0D%0A++}%0D%0A
+), which is the result of the following query run through http://geosparql.org: 
 
+```sparql
+SELECT ?name ?population
+WHERE
+{ 
+     ?city gs:nearby(39.4317 -120.2367 20) .
+     ?city gn:name ?name .
+     ?city gn:population ?population 
+}
 ```
-http://api.geonames.org/findNearby?lat=39.4317&lng=-120.2367&&username=mtpain
-```
 
-From this we can get a unique identifier for the nearest Geonamed thing and use
-it in our linked (meta)data record. We could then use the `nearbyFeatures`
-attribute in the Geonames linked data, specifically, using the result of the
-query above,
-[`<gn:nearbyFeatures
-rdf:resource="http://sws.geonames.org/5404896/nearby.rdf"/>`](
-http://sws.geonames.org/5404896/nearby.rdf).
+The DDI metadata does not seem to necessarily contain geospatial coordinates or
+an explicit field for a geoname, so generating one will take some thought.
 
-By following the guidelines on the W3C's [Dataset Descriptions: HCLS Community
-Profile](http://www.w3.org/2001/sw/hcls/notes/hcls-dataset/), we can further
-make our link-annotated RDF metadata web friendly and conform to this powerful
-standard.
+We can extend our Fuseki server we set up by building spatial indices and adding
+ontologies as needed, as explained in the [Apache Jena
+documentation](https://jena.apache.org/index.html), ["Spatial Searches with
+SPARQL"](https://jena.apache.org/documentation/query/spatial-query.html). 
 
-Here is a rough outline of the project goals in the order they should be
-accomplished:
-
-1. Identify a couple specific ways to annotate the existing XML metadata with
-linkages to other LOD resources on the web. 
-2. As a proof of concept, build a program to generate the annotated RDF/HCLS
-metadata automatically.
-3. On a set of 5 - 10 records, some related, some not, do an experiment to see
-if the chosen linkages for the metadata can actually result in user "discovery"
-that the known related ones actually are related.
-    - A prerequisite of this of course is to invent a scheme for such discovery
-4. At this point either pursue a user interface for doing more experiments on
-more datasets or see if we should instead try to identify alternative/better
-metrics for discovering related metadata records
+For an example of selecting RDF records within a particular temporal range,
+see this example from the [W3C SPARQL
+Recommendation](http://www.w3.org/TR/sparql11-query/#expressions) on 
+how to query with [xsd:dateTime](http://www.w3.org/TR/xmlschema-2/#dateTime) 
+filters: www.w3.org/TR/sparql11-query/#expressions
