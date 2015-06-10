@@ -24,6 +24,9 @@ make pdf
 to build the pdf version. So far there is only the one-page proposal
 due before I formally begin my work with the RDA.
 
+Building documentation requires [pandoc (install page)](http://pandoc.org/installing.html); follow the instructions on the pandoc 
+install page to also install the required latex distribution if you want to build the pdf.
+
 ### ld-book
 
 The `ld-book` directory contains examples from the book _Linked Data: Structured
