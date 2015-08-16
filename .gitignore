@@ -3,3 +3,4 @@ proposal.pdf
 *.swp
 proposal.docx
 venv
+*.pyc
