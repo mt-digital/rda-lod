@@ -1,38 +1,78 @@
-## Research Data Alliance 
-### Metadata IG Fellow Project
+# LIDD: Linked Interdisciplinary Data Discovery
 
-Welcome to the GitHub repository for the code and documentation
-generated for the efforts to enable researchers to find related
-datasets by converting dataset metadata to [RDF](http://www.w3.org/RDF/) [Linked Open
-Data](http://www.w3.org/standards/semanticweb/data) (see also
-http://linkeddata.org/) that follows the [HCLS standard](http://www.w3.org/2001/sw/hcls/notes/hcls-dataset/).
+What does Linked Data mean? What are its foundations: standards or
+relationships? Ultimately I want to pursue any way to link data together.
+Standards are being regarded as unimportant, though present in design
+considerations. 
 
-### Building documentation
+## Rediscovering what really matters
 
-To build the .docx documentation
+This project is currently at the prototype stage. I've created functionality
+to ingest [ICPSR](https://www.icpsr.umich.edu/icpsrweb/landing.jsp) metadata
+into a MongoDB database. I extract "normal" fields from the ICPSR metadata
+and "normalize" them. So far we have extracted the title field, which we could
+use directly from its native form, and extracted time information if available
+and constructed `start_datetime` and `end_datetime`.
 
+
+### Quickstart
+
+```bash
+git clone https://github.com/mtpain/rda-lod
 ```
-make docx
+
+#### Install dependencies
+
+```bash
+cd rda-lod
+pip install -r requirements.txt
 ```
 
-and
+#### Initialize the ICPSR Mongo Store
 
+First step, unzip `icpsr-ddi-metadata.tar.gz` to whichever directory you choose.
+Probably you'll just want to run
+
+```bash
+tar -xvf icpsr-ddi-metadata.tar.gz
 ```
-make pdf
+
+Now we insert that metadata into its Mongo collection form.
+
+First, start an iPython Flask web app shell
+
+```bash
+$ python manage.py shell
 ```
 
-to build the pdf version. So far there is only the one-page proposal
-due before I formally begin my work with the RDA.
+Then run the following command
 
-Building documentation requires [pandoc (install page)](http://pandoc.org/installing.html); follow the instructions on the pandoc 
-install page to also install the required latex distribution if you want to build the pdf.
+```python
+import glob
+from parsers.icpsr import make_normalized_icpsr
 
-### ld-book
+glb = glob.glob('icpsr-ddi-metadata/*')
 
-The `ld-book` directory contains examples from the book _Linked Data: Structured
-data on the Web_ by David Wood, Marsha Zaidman, and Luke Ruth with Michael
-Hausenblas and a Foreward by Tim Berners-Lee (Manning)
-([on
-amazon](http://www.amazon.com/gp/product/1617290394/ref=pd_lpo_sbs_dp_ss_2?pf_rd_p=1944687602&pf_rd_s=lpo-top-stripe-1&pf_rd_t=201&pf_rd_i=1449306594&pf_rd_m=ATVPDKIKX0DER&pf_rd_r=0EVR96BNSE3F5XK3S6JR)).
+for g in glb:
+    nmd = make_normalized_icpsr(g)
+    nmd.save() 
+```
+
+It should complete without complaint. One way to check this worked is to start
+up a mongo shell and run
+
+```javascript
+> use rda_lod
+> db.normalized_metadata.count()
+```
+
+It should be 9667, the total number of metadata documents in that archive.
 
 
+Now, run `startup.py`
+
+```bash
+./startup.py
+```
+
+and navigate to http://localhost:8000 to see the app in its current form.

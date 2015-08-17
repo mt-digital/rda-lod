@@ -5,27 +5,42 @@ import re
 import warnings
 
 import calendar
+import json
+
 from datetime import datetime
 import dateutil.parser as dup
 import xmltodict as x2d
 
-from ..app.models import NormalizedMetadata, MetadataStandard
+from app.models import NormalizedMetadata
 
 
 DDI_DOC_URL = 'http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html'
 
 
-def make_normalized_icpsr(self, icpsr_file=None):
+def make_normalized_icpsr(icpsr_file=None):
 
         raw = RawICPSR(icpsr_file)
-        date_range = NormalizedDateEntry(self.raw)
-        start_date = self.date_range.start_time
-        end_date = self.date_range.end_time
+        date_range = NormalizedDateEntry(raw)
+        start_date = date_range.start_time
+        end_date = date_range.end_time
 
-        metadata_standard = MetadataStandard('DDI', DDI_DOC_URL)
+        title = _extract_title(raw)
 
-        return NormalizedMetadata(raw, date_range, start_date,
-                                  end_date, metadata_standard)
+        document_str = json.dumps(
+            dict(raw=raw.text,
+                 title=title,
+                 start_datetime=start_date.isoformat(),
+                 end_datetime=end_date.isoformat(),
+                 metadata_standard=[{'name': 'DDI', 'reference': DDI_DOC_URL}]
+                 )
+        )
+
+        return NormalizedMetadata.from_json(document_str)
+
+
+def _extract_title(raw_icpsr):
+    md = raw_icpsr.metadata_dict
+    return md['codeBook']['docDscr']['citation']['titlStmt']['titl']
 
 
 class NormalizedDateEntry:
@@ -41,7 +56,7 @@ class RawICPSR:
 
     def __init__(self, icpsr_file=None):
         if icpsr_file:
-            self.text = open(icpsr_file)
+            self.text = open(icpsr_file).read()
             self.metadata_dict = x2d.parse(self.text)
 
         else:
@@ -63,8 +78,13 @@ def _get_time_periods(raw_icpsr):
     md_dict = raw_icpsr.metadata_dict
 
     # a list
-    time_prds = \
-        md_dict['codeBook']['stdyDscr']['stdyInfo']['sumDscr']['timePrd']
+    try:
+        time_prds = \
+            md_dict['codeBook']['stdyDscr']['stdyInfo']['sumDscr']['timePrd']
+    except:
+        start_time = datetime(1000, 1, 1)
+        end_time = datetime(3000, 1, 1)
+        return start_time, end_time
 
     # on brief inspection these seem to be the dominant date patterns in
     # ICPSR DDI metadata. Unfortunately the standard provides no date format
@@ -96,16 +116,20 @@ def _get_time_periods(raw_icpsr):
                 start_time = dup.parse(single_time_period)
                 end_time = dup.parse(single_time_period)
             except:
-                start_time = None
-                end_time = None
+                start_time = datetime(1000, 1, 1)
+                end_time = datetime(3000, 12, 31)
 
     elif len(time_prds) == 2:
 
-        start_time_period = filter(lambda p: p['@event'] == 'start',
-                                   time_prds).pop()['@date']
+        try:
+            start_time_period = filter(lambda p: p['@event'] == 'start',
+                                       time_prds).pop()['@date']
 
-        end_time_period = filter(lambda p: p['@event'] == 'end',
-                                 time_prds).pop()['@date']
+            end_time_period = filter(lambda p: p['@event'] == 'end',
+                                     time_prds).pop()['@date']
+        except:
+            start_time_period = '1000-01-01'
+            end_time_period = '3000-12-31'
 
         if (year_pattern.match(start_time_period) and
                 year_pattern.match(end_time_period)):
@@ -116,7 +140,7 @@ def _get_time_periods(raw_icpsr):
         elif (year_mo_pattern.match(start_time_period) and
               year_mo_pattern.match(end_time_period)):
 
-            year, mo = (int(el) for el in single_time_period.split('-'))
+            year, mo = (int(el) for el in start_time_period.split('-'))
             # start at beginning of month, day not given
             start_time = datetime(year, mo, 1)
             # end at the end of the month given
@@ -125,5 +149,10 @@ def _get_time_periods(raw_icpsr):
         else:  # if things are weird, just try dateutil.parse.parse
             start_time = dup.parse(start_time_period)
             end_time = dup.parse(end_time_period)
+
+    else:
+
+        start_time = datetime(1000, 1, 1)
+        end_time = datetime(3000, 1, 1)
 
     return start_time, end_time

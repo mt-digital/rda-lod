@@ -15,7 +15,7 @@ from ..models import NormalizedMetadata
 def metadata():
     """Handle get and push requests coming to metadata server"""
 
-    docs = NormalizedMetadata.objects()
+    docs = NormalizedMetadata.objects()[:1000]
 
     formatted_docs = [
 
@@ -189,7 +189,8 @@ def get_single_xml_metadata(_oid):
     """
     record = NormalizedMetadata.objects.get_or_404(pk=_oid)
 
-    raw_xml_string = '<?xml version="1.0" encoding="UTF-8" ?>' + \
-                     json.loads(record.to_json())['raw']
+    # raw_xml_string = '<?xml version="1.0" encoding="UTF-8" ?>' + \
+                     # json.loads(record.to_json())['raw']
+    raw_xml_string = json.loads(record.to_json())['raw']
 
     return Response(raw_xml_string, 200, mimetype='application/xml')
