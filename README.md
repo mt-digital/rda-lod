@@ -5,6 +5,8 @@ relationships? Ultimately I want to pursue any way to link data together.
 Standards are being regarded as unimportant, though present in design
 considerations. 
 
+![screenshot](figures/flip_yo_lidd_screenshot.png)
+
 ## Rediscovering what really matters
 
 This project is currently at the prototype stage. I've created functionality
