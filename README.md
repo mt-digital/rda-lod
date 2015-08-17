@@ -85,4 +85,4 @@ Now, run `startup.py`
 ./startup.py
 ```
 
-and navigate to http://localhost:8000 to see the app in its current form.
+and navigate to [http://localhost:8000](http://localhost:8000) to see the app in its current form.
