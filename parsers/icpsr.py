@@ -1,7 +1,5 @@
 """
 ICPSR Parser for ingestion into normalized-for-discovery (nfd) metadata store.
-
-
 """
 import re
 import warnings
@@ -11,14 +9,23 @@ from datetime import datetime
 import dateutil.parser as dup
 import xmltodict as x2d
 
+from ..app.models import NormalizedMetadata, MetadataStandard
 
-class ICPSR:
 
-    def __init__(self, icpsr_file=None):
-        self.raw = RawICPSR(icpsr_file)
-        self.date_range = NormalizedDateEntry(self.raw)
-        self.start_date = self.date_range.start_time
-        self.end_date = self.date_range.end_time
+DDI_DOC_URL = 'http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation.html'
+
+
+def make_normalized_icpsr(self, icpsr_file=None):
+
+        raw = RawICPSR(icpsr_file)
+        date_range = NormalizedDateEntry(self.raw)
+        start_date = self.date_range.start_time
+        end_date = self.date_range.end_time
+
+        metadata_standard = MetadataStandard('DDI', DDI_DOC_URL)
+
+        return NormalizedMetadata(raw, date_range, start_date,
+                                  end_date, metadata_standard)
 
 
 class NormalizedDateEntry:

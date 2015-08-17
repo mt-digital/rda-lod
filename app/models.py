@@ -1,95 +1,48 @@
-from datetime import datetime, date
-from flask import jsonify
-from werkzeug import ImmutableMultiDict
-
-from collections import OrderedDict
-
-import json
-
+"""
+Normalized metadata model for the app. Over time the NormalizedMetadata class
+will be a MongoEngine representation of a valid JSON-LD document.
+"""
 from . import db
 
-class LinkedAnnotation(db.Document):
+
+class MetadataStandard(db.EmbeddedDocument):
+    """
+    Which standard the metadata follows: no explicit restrictions, but at this
+    point will be either DDI or EML. The URL will point to a linkable code
+    book. Again, no explicit restrictions, but it would be great if it were a
+    URL that linked to basic documentation plus could be hashed for a
+    namespace, e.g. http://example.com/api/doc/field_definitions# so that
+    we may link to the 'start_date' definition:
+    http://example.com/api/doc/field_definitions#start_date
+    """
+    name = db.StringField(max_length=20, required=True)
+    reference = db.URLField()
+
+
+class NormalizedMetadata(db.Document):
     """
     Model served by the API to consumers. It has been normalized: parsed from
     whatever the metadata's native format and extracted to the currently
-    supported terms.
-
-    Since the focus is on metadata only and not on metadata of metadata,
-    everything returns to the data. Start and end dates are of the data.
-    In the interest of simplicity, there is no explicit reference to whether
-    or not the dates are a range
+    supported terms. Imported to ../parsers for creating app-ready normalized
+    metadata.
     """
-    start_date = db.DateTimeField(required=True)
-    end_date = db.DateTimeField(required=True)
+    raw = db.StringField(required=True)
 
-    pass
+    title = db.StringField(required=True)
+    start_datetime = db.DateTimeField(required=True)
+    end_datetime = db.DateTimeField(required=True)
 
+    # allow a list of standards in case they do indeed meet multiple standards
+    metadata_standard = db.ListField(db.EmbeddedDocumentField('MetadataStandard'))
 
-class RawXML(object):
-    pass
-
-
-
-
-class Contact(db.EmbeddedDocument):
-    """Sub-document for use in list of citation and data access contacts"""
-    name = db.StringField(max_length=255, required=True)
-    # TODO make this a mongoengine.fields.EmailField
-    email = db.StringField(max_length=255, required=True)
-    org = db.StringField(max_length=255, required=True)
-    address = db.StringField(max_length=255, required=True)
-    city = db.StringField(max_length=255, required=True)
-    state = db.StringField(max_length=255, required=True)
-    country = db.StringField(max_length=255, required=True)
-    zipcode = db.StringField(max_length=255, required=True)
-    phone = db.StringField(max_length=255, required=True)
-
-
-class Metadata(db.Document):
-    """MongoDB Document representation of metadata"""
-    # basic info
-    title = db.StringField(max_length=255, required=True)
-    last_mod_date = db.DateTimeField(required=True)
-    first_pub_date = db.DateTimeField(required=True)
-    summary = db.StringField(max_length=3000, required=True)
-
-    # detailed info
-    topic_category = db.ListField(db.StringField(max_length=255,
-                                                 required=True))
-    thematic_keywords = db.ListField(db.StringField(max_length=255))
-    place_keywords = db.ListField(db.StringField(max_length=255))
-    update_frequency = db.StringField(max_length=255, required=True)
-    status = db.StringField(max_length=255, required=True)
-    spatial_dtype = db.StringField(max_length=100)
-    hierarchy_level = db.StringField(max_length=100)
-
-    # data format details
-    data_format = db.ListField(db.StringField(max_length=255), required=True)
-    compression_technique = db.StringField(max_length=255)
-
-    # online resources; these are URLs, but opting to be more permissive
-    online = db.ListField(db.StringField(max_length=255))
-
-    # use restrictions
-    use_restrictions = db.StringField(max_length=1000)
-
-    # contacts
-    citation = db.ListField(db.EmbeddedDocumentField('Contact'))
-    access = db.ListField(db.EmbeddedDocumentField('Contact'))
-
-    # extents
-    vertical_max = db.FloatField(required=False)
-    vertical_min = db.FloatField(required=False)
-    west_lon = db.FloatField(required=True)
-    east_lon = db.FloatField(required=True)
-    south_lat = db.FloatField(required=True)
-    north_lat = db.FloatField(required=True)
-    start_date = db.DateTimeField(required=True)
-    end_date = db.DateTimeField(required=True)
-
-    placeholder = db.BooleanField(default=False, required=False)
-
-    meta = {'allow_inheritance': True}
+    meta = {
+        'indexes': [
+            'title',
+            '$title',
+            ('start_datetime', 'end_datetime')
+        ],
+        'allow_inheritance': True
+    }
 
     def format_dates(self):
         """

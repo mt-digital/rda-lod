@@ -1,3 +1,19 @@
+@import url(http://fonts.googleapis.com/css?family=Quattrocento+Sans);
+
+html *
+{
+  font-family: 'Quattrocento Sans', sans-serif;  
+}
+
+.center-img {
+  display: block;
+}
+
+.jumbotron {
+  margin-right: 0 auto;
+}
+
+
 .attribute-label {
   color:red;
 }
@@ -60,16 +76,22 @@ h6 {
  */
 body { 
     padding-top: 45px; 
+    /*background: #DFC6C9;*/
+    background: #C6DEFF;
+    color: black;
+}
+
+#custom-navbar {
+  background: #FFCDC8;
 }
 
 h1#record-title {
   margin-top: -10px; 
 }
 
-h3#brand {
-  color:#aaa;
-  margin-right:15px;
-  text-align:right
+#brand {
+  color:#444;
+  margin-left:19px;
 }
 
 

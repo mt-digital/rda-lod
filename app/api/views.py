@@ -1,116 +1,195 @@
 """API"""
-from copy import copy
-from datetime import datetime
-from dicttoxml import dicttoxml
-from flask import request, jsonify, Response, render_template
-from flask_cors import cross_origin
-from mongoengine import ObjectIdField
-
 import json
+import dateutil.parser as dup
+
+from flask import request, jsonify, Response
+from flask_cors import cross_origin
 
 from . import api
-from .. import db
-from ..models import Metadata
+from ..models import NormalizedMetadata
 
 
-@api.route('/api/metadata', methods=['GET', 'POST', 'PUT'])
-@cross_origin(origin='*', methods=['GET', 'POST', 'PUT'],
+@api.route('/api/metadata', methods=['GET'])
+@cross_origin(origin='*', methods=['GET'],
               headers=['X-Requested-With', 'Content-Type', 'Origin'])
 def metadata():
     """Handle get and push requests coming to metadata server"""
 
-    if request.method == 'GET':
+    docs = NormalizedMetadata.objects()
 
-        recs = Metadata.objects(placeholder=False)
-        return jsonify(dict(results=recs))
+    formatted_docs = [
 
-    if request.method == 'POST':
+        _format_normal_metadata(document)
 
-        new_md = Metadata.from_json(request.data)
+        for document in docs
+    ]
 
-        new_md.id = None
-        new_md.placeholder = False
-
-
-        new_md.save()
-
-        # import ipdb; ipdb.set_trace()
-
-        # return a JSON record of new metadata to load into the page
-        return jsonify(record=new_md)
+    return jsonify(dict(results=formatted_docs, total=len(docs)))
 
 
-@api.route('/api/metadata/placeholder', methods=['GET'])
-@cross_origin(origin='*', methods=['GET'],
-              headers=['X-Requested-With', 'Content-Type', 'Origin'])
-def placeholder_metadata():
+def _text_search_jsonified(search_args):
 
-    record = Metadata.objects.get(placeholder=True)
+    search_results = []
+    for key in search_args:
+        search_results += \
+            NormalizedMetadata.objects.search_text(search_args[key])
 
-    return jsonify(record=record)
+    formatted_search_results = [
+
+        _format_normal_metadata(document)
+
+        for document in search_results
+    ]
+
+    results_dict = dict(results=formatted_search_results)
+
+    return jsonify(results_dict)
 
 
-@api.route('/api/metadata/<string:_oid>', methods=['GET', 'PUT'])
+def _format_normal_metadata(document):
+    return {
+        'id': str(document.id),
+        'title': document.title,
+        'raw': 'http://{}/api/metadata/{}/raw'.format(request.host, document.id),
+        'permalink':
+            'http://{}/api/metadata/{}'.format(request.host, document.id),
+        'start_datetime': document.start_datetime.isoformat(),
+        'end_datetime': document.end_datetime.isoformat(),
+        'metadata_standards': document.metadata_standard
+    }
+
+BAD_DATETIME_RESPONSE = lambda datetime_query_key: Response(
+    '<p><pre><code>{}</code></pre> format is not recognized. Try '
+    '<a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a>'
+    '. Example: 1985-01-01T10:00:00-007</p>'.format(datetime_query_key),
+
+    400
+)
+
+@api.route('/api/metadata/search', methods=['GET', 'PUT'])
 @cross_origin(origin='*', methods=['GET', 'PUT'],
               headers=['X-Requested-With', 'Content-Type', 'Origin'])
-def get_single_metadata(_oid):
+def metadata_search():
     """Get the JSON representation of the metadata record with given id.
     """
+    _known_keys = ('title', 'min_start_datetime', 'max_start_datetime',
+                   'min_end_datetime', 'max_end_datetime')
+    search_args = request.args
 
-    if request.method == 'PUT':
+    unknown_keys = []
+    search_results = []
+    for k in search_args.keys():
 
-        existing_record = Metadata.objects.get_or_404(pk=_oid)
+        if k in _known_keys:
 
-        for f in existing_record._fields:
-            existing_record[f] = Metadata.from_json(request.data)[f]
+            if k == 'title':
 
-        existing_record.save()
+                return _text_search_jsonified(search_args)
 
-        return jsonify(record=existing_record)
+            elif k == 'min_start_datetime':
+
+                val = search_args[k]
+                try:
+                    parsed_date = dup.parse(val)
+                    search_results += list(
+                        NormalizedMetadata.objects(
+                            end_datetime__gt=parsed_date
+                        )
+                    )
+
+                except Exception as e:
+                    return BAD_DATETIME_RESPONSE(k)
+
+            elif k == 'max_start_datetime':
+
+                val = search_args[k]
+                try:
+                    parsed_date = dup.parse(val)
+                    search_results += list(
+                        NormalizedMetadata.objects(
+                            start_datetime__lt=parsed_date
+                        )
+                    )
+
+                except:
+
+                    return BAD_DATETIME_RESPONSE(k)
+
+
+            elif k == 'min_end_datetime':
+
+                val = search_args[k]
+                try:
+                    parsed_date = dup.parse(val)
+                    search_results += list(
+                        NormalizedMetadata.objects(
+                            end_datetime__gt=parsed_date
+                        )
+                    )
+
+                except:
+
+                    return BAD_DATETIME_RESPONSE(k)
+
+            elif k == 'max_end_datetime':
+
+                val = search_args[k]
+                try:
+                    parsed_date = dup.parse(val)
+                    search_results += list(
+                        NormalizedMetadata.objects(
+                            end_datetime__lt=parsed_date
+                        )
+                    )
+
+                except:
+
+                    return BAD_DATETIME_RESPONSE(k)
+
+        else:
+            unknown_keys.append(k)
+
+    if unknown_keys:
+        return "<h1>Unknown Key(s): {}</h1>".format(', '.join(unknown_keys))
 
     else:
-
-        record = Metadata.objects.get_or_404(pk=_oid)
-
-        record.format_dates()
-
-        return jsonify(record=record)
+        return _jsonified_search_results(search_results)
 
 
-@api.route('/api/metadata/<string:_oid>/xml')
+def _jsonified_search_results(search_results):
+    """
+    helper for formatting a list of search results into the jsonified
+    version that is ready to return from a view function
+    """
+    return jsonify(dict(results=[
+        _format_normal_metadata(document)
+        for document in search_results
+        ]
+    ))
+
+
+@api.route('/api/metadata/<string:_oid>')
+@cross_origin(origin='*', methods=['GET'])
+def get_single_metadata(_oid):
+    """Get the common XML representation of the metadata record with
+       given id.
+    """
+    record = NormalizedMetadata.objects.get_or_404(pk=_oid)
+
+    formatted_record = _format_normal_metadata(record)
+
+    return jsonify(formatted_record)
+
+
+@api.route('/api/metadata/<string:_oid>/raw')
 @cross_origin(origin='*', methods=['GET'])
 def get_single_xml_metadata(_oid):
     """Get the common XML representation of the metadata record with
        given id.
     """
-    record = Metadata.objects.get_or_404(pk=_oid)
+    record = NormalizedMetadata.objects.get_or_404(pk=_oid)
 
-    json_rec = json.loads(record.to_json())
+    raw_xml_string = '<?xml version="1.0" encoding="UTF-8" ?>' + \
+                     json.loads(record.to_json())['raw']
 
-    d_fmt = '%Y-%m-%d'
-
-    json_rec['start_date'] = record.start_date.isoformat() + '.000Z'
-    json_rec['end_date'] = record.end_date.isoformat() + '.000Z'
-    json_rec['last_mod_date'] = record.last_mod_date.strftime(d_fmt)
-    json_rec['first_pub_date'] = record.first_pub_date.strftime(d_fmt)
-
-    # for XSLT, need something inside of each <item> in this generic XML
-    _enclose_word = lambda k: {'word': k}
-    _enclose_words = lambda words: map(_enclose_word, words)
-
-    json_rec['thematic_keywords'] = _enclose_words(
-                                        json_rec['thematic_keywords'])
-
-    json_rec['place_keywords'] = _enclose_words(json_rec['place_keywords'])
-
-    json_rec['data_format'] = _enclose_words(json_rec['data_format'])
-
-    json_rec['topic_category'] = _enclose_words(json_rec['data_format'])
-
-    _enclose_url = lambda url: {'url': url}
-
-    json_rec['online'] = map(_enclose_url, json_rec['online'])
-
-    xml_str = dicttoxml(dict(record=json_rec))  # , attr_type=False)
-
-    return Response(xml_str, 200, mimetype='application/xml')
+    return Response(raw_xml_string, 200, mimetype='application/xml')
