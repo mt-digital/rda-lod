@@ -1,0 +1,33 @@
+img {
+    background-color: lightgrey;
+    width: 80%;
+    padding: 30px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+p {
+    font-size: 1.2em;    
+}
+
+p#stallman-citation {
+    font-size: .9em;
+    background-color: lightgrey;
+    width: 80%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+img#stallman {
+    display:'inline-block';
+    width:20%;
+    margin:10px;
+}
+
+.sourceCode {
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}
