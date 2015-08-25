@@ -27,7 +27,8 @@ img#stallman {
 }
 
 .sourceCode {
-    width: 80%;
+    width: 95%;
+    margin-top: 20px;
     margin-left: auto;
     margin-right: auto;
 }

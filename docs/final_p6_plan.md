@@ -85,50 +85,16 @@ href="https://commons.wikimedia.org/wiki/File:Richard_Stallman_-_F%C3%AAte_de_l%
 </p>
 </div>
 
-I'll briefly explore the limitations of both [ICPSR Data
-Search](https://www.icpsr.umich.edu/icpsrweb/ICPSR/) and DataONE's
-[ONEMercury search](https://cn.dataone.org/onemercury/). Below is a screenshot
- my search for the Endangered Species Act, which I
-thought would be a fruitful intersection of social and ecological data.
+### Web app as a design tool
 
-![ESA Search Results on ICPSR](icpsr_esa_search_results.png) 
+For me I also use a web interface as a design tool. Part of this project is
+about a new application of linked data for an abstract system. But connecting
+this system to a web front end forces it to take on an importatn o
+non-abstractness it might never achieve otherwise. Serving the web app is a
+REST API. When you run the software, `./startup.py` starts two servers: one for
+the AngularJS front end and one for the Python Flask-based API backend.
 
-Clicking through the search results, then using the browser to search the page for
-"endangered species" or even just "endangered" shows nothing. So if we even just
-improved the search interface for ICPSR, we'd have a win.
-
-The Whooping Crane happens to be the first species I think of when I think of
-the ESA. I spent time in Houston. I helped administer surveys during the annual 
-CraneFest at Port Aransas, Texas, near the cranes' main winter home. As the 
-saying goes, "go with what you know". So that's what I'm doing. 
-Here's a detailed view of a DataONE SOLR-indexed search result of 
-"whooping crane". 
-
-![DataONE detailed view of a search result](data_one_search_result_unlinked_detail.png)
-
-Not bad at all, but it's not linked. Easily those could have been hyperlinks,
-thus making that metadata instantly _linked_ to an outside source.
-
-As for an external source, it'd be nice to have one with an obvious API. 
-Wolfram Alpha's API couldn't be simpler for search. 
-We can easily link an identical search for further information, like so: 
-
-Have a look, Wolfram|Alpha works pretty well for ["Whooping
-Crane"](http://www.wolframalpha.com/input/?i=whooping+crane#). Not as well for 
-"endangered speices act":
-
-![Wolfram|Alpha search results for "endangered species act"](wolfram_alpha_endangered_species_act.png)
-
-Wolfram|Alpha is one of the often-cited sources for semantic searching even
-though they claim to be a _Computational_ Knowledge Engine.  Plus their API was
-instantly recognizable. Compare that to DBPedia which requires a SPARQL query.
-Why SPARQL? Look at the Wikipedia API. Wikipedia provides an 
-[API sandbox](https://en.wikipedia.org/wiki/Special:ApiSandbox#action=query&list=search&srsearch=Albert%20Einstein&utf8=) 
-and [documentation](https://www.mediawiki.org/wiki/API:Main_page) 
-all through straightforward HTTP requests. If our goal is to make linked data
-widely useful to humanity I think we should avoid SPARQL. The tools to create
-SPARQL endpoints are few and poorly documented. The tools for creating HTTP APIs
-are many and well documented. Fielding's famed [thesis Chapter 5 on
+Fielding's famed [thesis Chapter 5 on
 Representational State
 Transfer](https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm)
 is popular for a reason: "the REST architectural style from other network-based
@@ -143,31 +109,29 @@ REST are _resources_. In the API I've built so far there are four resources:
 1. `/api/metadata/<string:_oid>/raw`
 1. `/api/metadata/search`
 
-
-In my _innovation-decision_ process, I recognize an anxiety to adopt SPARQL
+In my _innovation-decision_ process, a la Everett's _Diffusion of Innovations_, 
+I recognize an anxiety to adopt SPARQL
 because the community that wants that is so much smaller and there are less
 resources for me or other developers to learn from. Alternatively, REST 
 provides an answer to the same problem, but designed to fit the web.
 
-The first of the final two sections describe some technical details of what 
-I've done so far. The second of the final two sections describes where I plan to
-take this, maybe answering a question you might have at this point, namely,
-"Where's the linked data?"
+### (Meta)Data Model, served by the API
 
-
-## Technical Details
-
-I've set up a REST API backend that can be used 
-independently and web app frontend that uses the API to query the metadata.
-
-My general framework for implementing this is illustrated in the figure below.
 Each new metadata standard or repository is ingested into a normalized metadata
 model. This model is shown in its current, minimal form below.  This is the
 actual model used in the _Model-View-Controller_ architecture of the REST API. I
 also use it during the ingestion step: each metadata source gets its own
 _parser_, contained in the 
 [rda-lod/parsers](https://github.com/mtpain/rda-lod/tree/master/parsers)
-directory.
+directory. The metadata standard's parser converts a specific metadata standard
+to the normalized version. All together, our metadata bubbles up to our web
+in a hierarchy shown in the figure below. We also show below the actual
+`NormalizedMetadata` class from
+[`app/models.py`](https://github.com/mtpain/rda-lod/blob/master/app/models.py).
+In addition to title and start and end datetime, I'll ingest either the 
+bounding box or the geographic center of the geospatial entity given, and the
+abstract.
+
 
 ![](lidd-hierarchy.png)
 
@@ -189,14 +153,7 @@ class NormalizedMetadata(db.Document):
     # allow a list of standards in case they do indeed meet multiple standards
     metadata_standard = db.ListField(db.EmbeddedDocumentField('MetadataStandard'))
 
-    meta = {
-        'indexes': [
-            'title',
-            '$title',
-            ('start_datetime', 'end_datetime')
-        ],
-        'allow_inheritance': True
-    }
+    meta = { ... }
 
     def format_dates(self):
         """
@@ -206,14 +163,8 @@ class NormalizedMetadata(db.Document):
             el = el.isoformat()
 ```
 
-Since each normalized field sits in a Mongo collection and we can do full-text
-indexes on arbitrary fields. In the current iteration of the
-`NormalizedMetadata` model, `$index` denotes one of those fields flagged 
-for full-text search. For the P6 meeting, I'll add abstracts to the model
-and index those for full-text search as well. I'll experiment with a full-text
-search on the full native metadata records themselves, stored in the `raw` 
-field of `NormalizedMetadata`.
-
+Finally, the moment we've all been waiting for, how linked data will play in to
+all this.
 
 ## Linked Data
 
@@ -221,12 +172,21 @@ field of `NormalizedMetadata`.
 
 You probably noticed the "Linking" box in the section above and gotten an idea
 of one of the ways I'd like to use linked data. I want to use the right
-ontologies to describe inherent linkages between (meta)data. 
-I want to do clustering be it via geographic clustering of metadata records 
+ontologies to describe linkages between (meta)data. 
+I want to do clustering via geographic clustering of metadata records 
 based on their geospatial locations, temporal clustering based on 
-the timespans the data cover, or text-based clustering and topic modeling 
-based on the titles and abstracts. Why not try to use keywords, you might ask? 
-Because of my principle of rapid prototyping: I think we can get to better 
+the timespans the data cover, or text-based clustering and topic modeling
+of the titles and abstracts, probably by performing 
+[Latent Dirichlet
+Allocation](https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation), which
+seems to be the current gold standard. 
+Then the challenge in linking documents is
+describing the nature of the linkages in a semantic, machine-readable,
+standard way, and then to build a sensible API to serve this linked data.
+
+Why not try to use keywords, you might ask? 
+Because of my principle of rapid prototyping and hypothesis testing: 
+I think we can get to better 
 linking faster by using full-text instead of keywords coming from diverse
 standards which may or may not overlap. Scientists or the people who created the
 metadata might not have known the full vocabulary anyway, or the vocabulary may
@@ -235,6 +195,13 @@ it. Put more scientifically, my hypothesis is that keywords are relatively poor
 indicators of the actual content contained in the data. A corollary to that is
 that this inherent poorness of representation compounds itself when trying to
 link datasets together based on the content of their metadata.
+
+To create clusters of common datasets for the entire corpus of DataONE and 
+ICPSR is likely a computational challenge. Indeed, this may be an important
+feature of this project going forward, to solve this computational challenge.
+In _A generalized topic modeling approach for automatic document annotation_, 
+Tuarob, et al., 2015, the authors use only 1,000 documents and only consider
+tags.
 
 
 ### 3rd Party Web Linking
@@ -247,13 +214,22 @@ back to its native metadata standard, which is what I'm trying to do in the
 [DDI's time period
 covered](http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation_files/schemas/codebook_xsd/elements/timePrd.html#a4).
 
-Furthermore, I'll include searches to other sources like Wikipedia and
-Wolfram|Alpha. As I said before, I'm hesitant to link to DBPedia because of the
-time investment to learn its API. Plus, one search I did for "Whooping Crane"
-took way too long.
-
+Furthermore, I'll include searches to other sources like GeoNames, Wikipedia,
+Wolfram|Alpha, and Google. I'll also use GeoNames to give me coordinates for
+location names, which will harmonize the geospatial extents.
 
 ## Long term
+
+While what I've outlined here will be plenty of work, in the future I'd like to
+incorporate more data repositories and enhance the user interface. 
+In the spirit of interdisciplinarity and
+my favorite use case so far, which is to be able to do an in-depth,
+at-your-fingertips study of environmental conflict.  
+The law repository [Court Listener has great Bulk Data and API
+documentation](https://www.courtlistener.com/api/). Linking diverse datasets
+will be a great tool if we can make the user interface and API intuitive and
+efficient, building reports and citations all made possible by smart ontologies
+for describing the links we discover.
 
 </div>
 </body>
