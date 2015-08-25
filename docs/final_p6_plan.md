@@ -7,29 +7,30 @@
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
-<title>Plan for Plenary</title>
 </head>
 
 
 <body>
 <div class="container">
-#  Final plan for P6 with an eye on the future
+# Current progress, final plan for P6 with an eye to the future
+
+## Matthew Turner, August 25, 2015
+
 
 So far I've built a web interface where you can browse all ICPSR records. Search
 is coming soon. It's
 served by the API I'm developing to provide a REST interface to the 
 linked data built on the backend. The
-linked data will be built by normalizing XML metadata records from DataONE,
+linked data is built by normalizing XML metadata records from DataONE,
 ICPSR, and more repositories into the future. These normalized records are
 stored in a MongoDB collection; each document contains its own fulltext as a
-field. MongoDB has built-in full-text search. It's a well-known database that
-enables me to create
+field. MongoDB has built-in full-text search. It's a well-documented and
+widely-used database that enables me to create
 lean web apps. We ingest data into the database by writing a new parser
 that extracts the normalized fields from each new metadata standard.
 
 I believe in "rapid prototyping". It works for me personally as well as for teams. 
-I was wondering how to build
-a "mechanism to search across the pool of 
+I was wondering how to build a "mechanism to search across the pool of 
 records for data sets that have the potential to be used together" by
 "express(ing) metadata element correspondences at the schema level
 between DDI-RDF and DataONE properties, harmonizing
@@ -39,8 +40,10 @@ transcends standards or a given technology. So, as a first prototype,
 I'm going to build a linked interdisciplinary system based on the tools I know. 
 
 Everything in keeping with the "open" part of linked open data, this software
-has been open source from day 1 on github: 
-[](https://github.com/mtpain/rda-lod.git). 
+has been open source from day one on GitHub: 
+[https://github.com/mtpain/rda-lod](https://github.com/mtpain/rda-lod). 
+There you can find up-to-date instructions on how to run the development 
+version of the web app locally. 
 
 
 ### Why another search interface? ICPSR and DataONE have their own.
@@ -87,12 +90,19 @@ href="https://commons.wikimedia.org/wiki/File:Richard_Stallman_-_F%C3%AAte_de_l%
 
 ### Web app as a design tool
 
-For me I also use a web interface as a design tool. Part of this project is
-about a new application of linked data for an abstract system. But connecting
-this system to a web front end forces it to take on an importatn o
-non-abstractness it might never achieve otherwise. Serving the web app is a
-REST API. When you run the software, `./startup.py` starts two servers: one for
-the AngularJS front end and one for the Python Flask-based API backend.
+The web interface is a design tool, a guide to and reminder of what exactly 
+we're building. Part of this project is
+about a new application using linked data in the abstract. But connecting
+this system to a web front end forces it to take on an important
+non-abstractness it might never achieve otherwise. Serving the web app frontend
+is a REST API. When you run the software, `./startup.py` starts two servers: 
+one for the AngularJS front end and one for the Python Flask-based API backend.
+Again please visit [the repository on GitHub](https://github.com/mtpain/rda-lod) 
+to run a development version. A live version will be available soon, well 
+before the plenary for testing. A screenshot is below.
+
+![Screenshot of web
+app](flip_yo_lidd_screenshot.png)
 
 Fielding's famed [thesis Chapter 5 on
 Representational State
@@ -133,9 +143,6 @@ bounding box or the geographic center of the geospatial entity given, and the
 abstract.
 
 
-![](lidd-hierarchy.png)
-
-
 ```python
 class NormalizedMetadata(db.Document):
     """
@@ -166,11 +173,15 @@ class NormalizedMetadata(db.Document):
 Finally, the moment we've all been waiting for, how linked data will play in to
 all this.
 
+![The hierarchy, from raw domain metadata at the bottom to the frontend view at
+the top](lidd-hierarchy.png)
+
+
 ## Linked Data
 
 ### Clustering/Linking via Computed Metadata Relationships
 
-You probably noticed the "Linking" box in the section above and gotten an idea
+You probably noticed the "Linking" box in the hierarchy figure and gotten an idea
 of one of the ways I'd like to use linked data. I want to use the right
 ontologies to describe linkages between (meta)data. 
 I want to do clustering via geographic clustering of metadata records 
@@ -199,9 +210,11 @@ link datasets together based on the content of their metadata.
 To create clusters of common datasets for the entire corpus of DataONE and 
 ICPSR is likely a computational challenge. Indeed, this may be an important
 feature of this project going forward, to solve this computational challenge.
-In _A generalized topic modeling approach for automatic document annotation_, 
-Tuarob, et al., 2015, the authors use only 1,000 documents and only consider
-tags.
+In [_A generalized topic modeling approach for automatic document annotation_, 
+Tuarob, et al., 2015](http://www.personal.psu.edu/szt5115/publications/2015_IJDL_Annotation.pdf), the authors use only 1,000 documents and only consider
+tags.  Still, it will likely be more indicative of commonality 
+than geospatial clustering with DDI metadata, which in ICPSR has no 
+explicit coordinates for its locations.
 
 
 ### 3rd Party Web Linking
@@ -225,6 +238,7 @@ incorporate more data repositories and enhance the user interface.
 In the spirit of interdisciplinarity and
 my favorite use case so far, which is to be able to do an in-depth,
 at-your-fingertips study of environmental conflict.  
+
 The law repository [Court Listener has great Bulk Data and API
 documentation](https://www.courtlistener.com/api/). Linking diverse datasets
 will be a great tool if we can make the user interface and API intuitive and

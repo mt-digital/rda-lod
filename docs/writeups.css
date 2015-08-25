@@ -1,6 +1,6 @@
 img {
     background-color: lightgrey;
-    width: 80%;
+    width: 88%;
     padding: 30px;
     display: block;
     margin-left: auto;
@@ -9,6 +9,14 @@ img {
 
 p {
     font-size: 1.2em;    
+}
+
+p.caption {
+    display: block;
+    margin-right: auto;
+    margin-left: auto;
+    width: 80%;
+    font-size: 0.85em;
 }
 
 p#stallman-citation {

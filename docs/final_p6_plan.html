@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+  </style>
+  <link rel="stylesheet" href="writeups.css" type="text/css" />
+</head>
+<body>
+<!DOCTYPE html>
+<html>
+<head>
+<!-- Latest compiled and minified CSS -->
+<p><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"></p>
+<!-- Optional theme -->
+<p><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css"></p>
+</head>
+<body>
+<div class="container">
+<h1>Current progress, final plan for P6 with an eye to the future</h1>
+<h2>Matthew Turner, August 25, 2015</h2>
+<p>So far I've built a web interface where you can browse all ICPSR records. Search is coming soon. It's served by the API I'm developing to provide a REST interface to the linked data built on the backend. The linked data is built by normalizing XML metadata records from DataONE, ICPSR, and more repositories into the future. These normalized records are stored in a MongoDB collection; each document contains its own fulltext as a field. MongoDB has built-in full-text search. It's a well-documented and widely-used database that enables me to create lean web apps. We ingest data into the database by writing a new parser that extracts the normalized fields from each new metadata standard.</p>
+<p>I believe in &quot;rapid prototyping&quot;. It works for me personally as well as for teams. I was wondering how to build a &quot;mechanism to search across the pool of records for data sets that have the potential to be used together&quot; by &quot;express(ing) metadata element correspondences at the schema level between DDI-RDF and DataONE properties, harmonizing geographic/temporal ranges and units.&quot; The technologies suggested for use are still foreign to me. Then I realized &quot;Linked Data&quot; transcends standards or a given technology. So, as a first prototype, I'm going to build a linked interdisciplinary system based on the tools I know.</p>
+<p>Everything in keeping with the &quot;open&quot; part of linked open data, this software has been open source from day one on GitHub: <a href="https://github.com/mtpain/rda-lod" class="uri">https://github.com/mtpain/rda-lod</a>. There you can find up-to-date instructions on how to run the development version of the web app locally.</p>
+<h3>Why another search interface? ICPSR and DataONE have their own.</h3>
+<div class="row">
+<img align="left" id="stallman" src="Richard_Stallman_-_Fete_de_lHumanite_2014_-_010.jpg" alt="Richard
+Stallman, founder of the Free Software Foundation"/>
+
+<p>Because I didn't particularly like using either one, and in the long run I have to build my own anyway to demonstrate my metadata system. Designing the front end and the REST API simultaneously sets a goal for the back end--they are inextricably connected. And to adapt a famous quote from the founder of the Free Software Foundation Richard Stallman, I wanted to freely explore the metadata records in both ICPSR and DataONE Repositories: &quot;free like freedom, not free like free beer&quot;.</p>
+<p>A generic or pre-existing search interface won't be able to serve my needs exactly as I move forward. I want the interface to be a publication like a paper. We talk about software and data publications--let's make our own software publication from this work. Maybe someday people will write web apps for their work like some use for journal papers.</p>
+<p id="stallman-citation">
+<em> &quot;Richard Stallman - Fête de l'Humanité 2014 - 010&quot; by Thesupermat - Own work. Licensed under CC BY-SA 3.0 via Commons - <a
+href="https://commons.wikimedia.org/wiki/File:Richard_Stallman_-_F%C3%AAte_de_l%27Humanit%C3%A9_2014_-_010.jpg#/media/File:Richard_Stallman_-_F%C3%AAte_de_l%27Humanit%C3%A9_2014_-_010.jpg">https://commons.wikimedia.org/wiki/File:Richard_Stallman_-<em>F%C3%AAte_de_l%27Humanit%C3%A9_2014</em>-<em>010.jpg#/media/File:Richard_Stallman</em>-<em>F%C3%AAte_de_l%27Humanit%C3%A9_2014</em>-_010.jpg</a> </em>
+</p>
+</div>
+<h3>Web app as a design tool</h3>
+<p>The web interface is a design tool, a guide to and reminder of what exactly we're building. Part of this project is about a new application using linked data in the abstract. But connecting this system to a web front end forces it to take on an important non-abstractness it might never achieve otherwise. Serving the web app frontend is a REST API. When you run the software, <code>./startup.py</code> starts two servers: one for the AngularJS front end and one for the Python Flask-based API backend. Again please visit <a href="https://github.com/mtpain/rda-lod">the repository on GitHub</a> to run a development version. A live version will be available soon, well before the plenary for testing. A screenshot is below.</p>
+<div class="figure">
+<img src="flip_yo_lidd_screenshot.png" alt="Screenshot of web app" /><p class="caption">Screenshot of web app</p>
+</div>
+<p>Fielding's famed <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm">thesis Chapter 5 on Representational State Transfer</a> is popular for a reason: &quot;the REST architectural style from other network-based styles is its emphasis on a uniform interface between components.&quot; Furthermore, it presents a clear split between &quot;verbs&quot; and &quot;nouns&quot;, and their identification in the existing HTTP scheme: verbs are built in and the main ones we need are GET, POST, PUT, and DELETE. No need to introduce any more verbs. The nouns of REST are <em>resources</em>. In the API I've built so far there are four resources:</p>
+<ol style="list-style-type: decimal">
+<li><code>/api/metadata</code></li>
+<li><code>/api/metadata/&lt;string:_oid&gt;</code></li>
+<li><code>/api/metadata/&lt;string:_oid&gt;/raw</code></li>
+<li><code>/api/metadata/search</code></li>
+</ol>
+<p>In my <em>innovation-decision</em> process, a la Everett's <em>Diffusion of Innovations</em>, I recognize an anxiety to adopt SPARQL because the community that wants that is so much smaller and there are less resources for me or other developers to learn from. Alternatively, REST provides an answer to the same problem, but designed to fit the web.</p>
+<h3>(Meta)Data Model, served by the API</h3>
+<p>Each new metadata standard or repository is ingested into a normalized metadata model. This model is shown in its current, minimal form below. This is the actual model used in the <em>Model-View-Controller</em> architecture of the REST API. I also use it during the ingestion step: each metadata source gets its own <em>parser</em>, contained in the <a href="https://github.com/mtpain/rda-lod/tree/master/parsers">rda-lod/parsers</a> directory. The metadata standard's parser converts a specific metadata standard to the normalized version. All together, our metadata bubbles up to our web in a hierarchy shown in the figure below. We also show below the actual <code>NormalizedMetadata</code> class from <a href="https://github.com/mtpain/rda-lod/blob/master/app/models.py"><code>app/models.py</code></a>. In addition to title and start and end datetime, I'll ingest either the bounding box or the geographic center of the geospatial entity given, and the abstract.</p>
+<pre class="sourceCode python"><code class="sourceCode python"><span class="kw">class</span> NormalizedMetadata(db.Document):
+    <span class="co">&quot;&quot;&quot;</span>
+<span class="co">    Model served by the API to consumers. It has been normalized: parsed from</span>
+<span class="co">    whatever the metadata&#39;s native format and extracted to the currently</span>
+<span class="co">    supported terms. Imported to ../parsers for creating app-ready normalized</span>
+<span class="co">    metadata.</span>
+<span class="co">    &quot;&quot;&quot;</span>
+    raw = db.StringField(required=<span class="ot">True</span>)
+
+    title = db.StringField(required=<span class="ot">True</span>)
+    start_datetime = db.DateTimeField(required=<span class="ot">True</span>)
+    end_datetime = db.DateTimeField(required=<span class="ot">True</span>)
+
+    <span class="co"># allow a list of standards in case they do indeed meet multiple standards</span>
+    metadata_standard = db.ListField(db.EmbeddedDocumentField(<span class="st">&#39;MetadataStandard&#39;</span>))
+
+    meta = { ... }
+
+    <span class="kw">def</span> format_dates(<span class="ot">self</span>):
+        <span class="co">&quot;&quot;&quot;</span>
+<span class="co">        Our web form needs the date to be in YYYY-MM-DD (ISO 8601)</span>
+<span class="co">        &quot;&quot;&quot;</span>
+        <span class="kw">for</span> el in [<span class="ot">self</span>.start_date, <span class="ot">self</span>.end_date, <span class="ot">self</span>.first_pub_date]:
+            el = el.isoformat()</code></pre>
+<p>Finally, the moment we've all been waiting for, how linked data will play in to all this.</p>
+<div class="figure">
+<img src="lidd-hierarchy.png" alt="The hierarchy, from raw domain metadata at the bottom to the frontend view at the top" /><p class="caption">The hierarchy, from raw domain metadata at the bottom to the frontend view at the top</p>
+</div>
+<h2>Linked Data</h2>
+<h3>Clustering/Linking via Computed Metadata Relationships</h3>
+<p>You probably noticed the &quot;Linking&quot; box in the hierarchy figure and gotten an idea of one of the ways I'd like to use linked data. I want to use the right ontologies to describe linkages between (meta)data. I want to do clustering via geographic clustering of metadata records based on their geospatial locations, temporal clustering based on the timespans the data cover, or text-based clustering and topic modeling of the titles and abstracts, probably by performing <a href="https://en.wikipedia.org/wiki/Latent_Dirichlet_allocation">Latent Dirichlet Allocation</a>, which seems to be the current gold standard. Then the challenge in linking documents is describing the nature of the linkages in a semantic, machine-readable, standard way, and then to build a sensible API to serve this linked data.</p>
+<p>Why not try to use keywords, you might ask? Because of my principle of rapid prototyping and hypothesis testing: I think we can get to better linking faster by using full-text instead of keywords coming from diverse standards which may or may not overlap. Scientists or the people who created the metadata might not have known the full vocabulary anyway, or the vocabulary may actually not be well-designed for the domain scientists who are forced to use it. Put more scientifically, my hypothesis is that keywords are relatively poor indicators of the actual content contained in the data. A corollary to that is that this inherent poorness of representation compounds itself when trying to link datasets together based on the content of their metadata.</p>
+<p>To create clusters of common datasets for the entire corpus of DataONE and ICPSR is likely a computational challenge. Indeed, this may be an important feature of this project going forward, to solve this computational challenge. In <a href="http://www.personal.psu.edu/szt5115/publications/2015_IJDL_Annotation.pdf"><em>A generalized topic modeling approach for automatic document annotation</em>, Tuarob, et al., 2015</a>, the authors use only 1,000 documents and only consider tags. Still, it will likely be more indicative of commonality than geospatial clustering with DDI metadata, which in ICPSR has no explicit coordinates for its locations.</p>
+<h3>3rd Party Web Linking</h3>
+<p>More traditionally, I will ensure that both my API and web app deliver hyperlinks wherever a URL is found. Each normalized metadata record will link back to its native metadata standard, which is what I'm trying to do in the <code>metadata_standard</code>. It will also link to the native definition of each <code>NormalizedMetadata</code> field, for example <a href="http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/field_level_documentation_files/schemas/codebook_xsd/elements/timePrd.html#a4">DDI's time period covered</a>.</p>
+<p>Furthermore, I'll include searches to other sources like GeoNames, Wikipedia, Wolfram|Alpha, and Google. I'll also use GeoNames to give me coordinates for location names, which will harmonize the geospatial extents.</p>
+<h2>Long term</h2>
+<p>While what I've outlined here will be plenty of work, in the future I'd like to incorporate more data repositories and enhance the user interface. In the spirit of interdisciplinarity and my favorite use case so far, which is to be able to do an in-depth, at-your-fingertips study of environmental conflict.</p>
+<p>The law repository <a href="https://www.courtlistener.com/api/">Court Listener has great Bulk Data and API documentation</a>. Linking diverse datasets will be a great tool if we can make the user interface and API intuitive and efficient, building reports and citations all made possible by smart ontologies for describing the links we discover.</p>
+</div>
+</body>
+</html>
+</body>
+</html>
