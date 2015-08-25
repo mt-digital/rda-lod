@@ -5,6 +5,8 @@ relationships? Ultimately I want to pursue any way to link data together.
 Standards are being regarded as unimportant, though present in design
 considerations. 
 
+![screenshot](figures/flip_yo_lidd_screenshot.png)
+
 ## Rediscovering what really matters
 
 This project is currently at the prototype stage. I've created functionality
@@ -28,6 +30,14 @@ cd rda-lod
 pip install -r requirements.txt
 ```
 
+Using [homebrew](http://brew.sh), install MongoDB if you don't already have it installed
+
+```bash
+brew install mongodb
+```
+
+Follow the instructions to start MongoDB and start the server on computer startup as well.
+
 #### Initialize the ICPSR Mongo Store
 
 First step, unzip `icpsr-ddi-metadata.tar.gz` to whichever directory you choose.
@@ -45,7 +55,7 @@ First, start an iPython Flask web app shell
 $ python manage.py shell
 ```
 
-Then run the following command
+Then run the following commands
 
 ```python
 import glob
@@ -59,7 +69,7 @@ for g in glb:
 ```
 
 It should complete without complaint. One way to check this worked is to start
-up a mongo shell and run
+up a mongo shell (just type `mongo`) and run
 
 ```javascript
 > use rda_lod
