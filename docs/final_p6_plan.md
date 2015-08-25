@@ -7,8 +7,6 @@
 <!-- Optional theme -->
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <title>Plan for Plenary</title>
 </head>
 
@@ -17,45 +15,33 @@
 <div class="container">
 #  Final plan for P6 with an eye on the future
 
-I've done a lot of reading and reflecting on the possibilities and
-usefulness of a tool so described, a "mechanism to search across the pool of 
+So far I've built a web interface where you can browse all ICPSR records. Search
+is coming soon. It's
+served by the API I'm developing to provide a REST interface to the 
+linked data built on the backend. The
+linked data will be built by normalizing XML metadata records from DataONE,
+ICPSR, and more repositories into the future. These normalized records are
+stored in a MongoDB collection; each document contains its own fulltext as a
+field. MongoDB has built-in full-text search. It's a well-known database that
+enables me to create
+lean web apps. We ingest data into the database by writing a new parser
+that extracts the normalized fields from each new metadata standard.
+
+I believe in "rapid prototyping". It works for me personally as well as for teams. 
+I was wondering how to build
+a "mechanism to search across the pool of 
 records for data sets that have the potential to be used together" by
 "express(ing) metadata element correspondences at the schema level
 between DDI-RDF and DataONE properties, harmonizing
-geographic/temporal ranges and units.
-There is also some guidance in the project proposal to translate
-metadata from XML to RDF, as well as to select a small subset of the
-records from ICPSR and DataONE to use as an example.  
+geographic/temporal ranges and units." The technologies
+suggested for use are still foreign to me.  Then I realized "Linked Data"
+transcends standards or a given technology. So, as a first prototype, 
+I'm going to build a linked interdisciplinary system based on the tools I know. 
 
-I've found part of this to be a real challenge, namely finding a
-subset of related records. I was not too pleased with either ICPSR's
-or DataONE's search capability, and I ran into immediate challenges
-identifying related datasets between the two. 
+Everything in keeping with the "open" part of linked open data, this software
+has been open source from day 1 on github: 
+[](https://github.com/mtpain/rda-lod.git). 
 
-
-## Serving Users through a web app
-
-I don't want to use RDF because it seems esotheric and doesn't
-necessarily integrate well with more familiar tools to me and, in my
-opinion, with the standard developer. Lately I've been concerned about
-software sustainability, and if we use RDF and a Fuseki server we're
-likely to be limited in finding experts to work with these
-technologies, let alone experts in metadata formats. So I want to
-lower the learning curve by using MongoDB as a datastore and JSON-LD
-as a format. This has the added benefit of keeping all our (meta)data
-in a consistent format from server to client. However I want to keep
-the full-text XML in with each MongoDB document for full-text search.
-I extract the most relevant fields from each new metadata format into
-the Mongo translation document, much like DataONE uses a Solr index of
-select fields as well as a full-text index. In the future, a Solr
-index like that could augment or even replace this Mongo architecture.
-But for this initial prototype I'd like to go with what I believe is a
-more common tool among developers, and one where the data model is
-tightly integrated with the server code, which is the Python Flask web
-framework. We can incrementally support more common fields between
-data formats in a straightforward way with this scheme by just adding
-another field to our NormalizedDataMore details on all this are below in the technical details
-section.
 
 ### Why another search interface? ICPSR and DataONE have their own.
 
@@ -68,21 +54,24 @@ Stallman, founder of the Free Software Foundation"/>
 \caption{Richard Stallman, founder of the Free Software Foundation}
 \end{center}
 \end{figure}
-<p>
-Because I didn't like using either. And to adapt a famous quote from the founder
+
+Because I didn't particularly like using either one, 
+and in the long run I have to
+build my own anyway to demonstrate my metadata system. Designing the front end
+and the REST API simultaneously sets a goal for the back end--they are 
+inextricably connected.
+And to adapt a famous quote from the founder
 of the Free Software Foundation Richard Stallman, 
 I wanted to freely explore the metadata records in both ICPSR and DataONE
 Repositories: "free like freedom, not free like free beer". 
-</p>
 
-Another reason is that a generic or pre-existing search interface won't
+A generic or pre-existing search interface won't
 be able to serve my needs exactly as I move forward. 
 I want the interface to be a publication like
-a paper. We talk about software and data publications--why not have a software
-publication version of some work someone did, even if a lot of the basics might
-_might_ be covered in another work. Reading a paper on software sometimes
-feels useless: why not just write the software well and present it on the web? 
-Make web interfaces for data products as ubiquitous as latex. 
+a paper. We talk about software and data publications--let's make our own 
+software publication from this work. 
+Maybe someday people will write web apps for their work like some use
+\LaTeX for journal papers. 
 
 
 <p id="stallman-citation">
