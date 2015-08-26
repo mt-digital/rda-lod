@@ -84,6 +84,14 @@
   <div class="jumbotron text-center"><img src="figures/logo.png" alt="LIDD" width="90%"></div>
 </div>
 
+  
+  <h3 id="search">Search:</h3>
+  
+  <div id="searchbox">
+    <input style="width:80%" type="text" ng-model="searchStr"><button ng-click="search()">Go</button>
+  </div>
+  
+
   <!-- View of current metadata records -->
 <a class="anchor" name="list"><h1 name="list">Listing of Current Metadata Records</h1></a>  
 
@@ -97,7 +105,7 @@
         <td><b>Format Options</b></td>
       </tr>
     </thead>
-    <tr ng-repeat="mdRecord in allRecords">
+    <tr ng-repeat="mdRecord in recordsList">
       <td>{{ mdRecord.title }}</td>
       <td style="text-align:center" ng-repeat="mdstds in mdRecord.metadata_standards">{{ mdstds.name }}</td>
       <td>{{ mdRecord.start_datetime }}</td>
