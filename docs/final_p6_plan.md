@@ -17,8 +17,8 @@
 ## Matthew Turner, August 25, 2015
 
 
-So far I've built a web interface where you can browse all ICPSR records. Search
-is coming soon. It's
+So far I've built a web interface where you can scroll through all ICPSR 
+records. Search is coming soon. It's
 served by the API I'm developing to provide a REST interface to the 
 linked data built on the backend. The
 linked data is built by normalizing XML metadata records from DataONE,
@@ -38,12 +38,24 @@ geographic/temporal ranges and units." The technologies
 suggested for use are still foreign to me.  Then I realized "Linked Data"
 transcends standards or a given technology. So, as a first prototype, 
 I'm going to build a linked interdisciplinary system based on the tools I know. 
+Hopefully at the Paris Plenary I will get some good feedback and guidance on
+whether or not RDF and SPARQL, for example, are really necessary, or if my "web
+first" approach is suitable.
 
 Everything in keeping with the "open" part of linked open data, this software
 has been open source from day one on GitHub: 
 [https://github.com/mtpain/rda-lod](https://github.com/mtpain/rda-lod). 
 There you can find up-to-date instructions on how to run the development 
 version of the web app locally. 
+
+Although it doesn't yet show in the web app, the realm of use cases I've settled
+on is researching the background and foundation of environmental conflict. For
+example, if someone wants to understand the conflict around an endangered
+species, there are probably court cases, surveys of public opinion, ecological
+surveys of the species and its environment, and so on. In the long run we can
+use linked data to enable a user to efficiently generate reports, citations, and
+bulk data downloads that the user can instantly download and explore on their
+local machine.
 
 
 ### Why another search interface? ICPSR and DataONE have their own.
@@ -58,15 +70,14 @@ Stallman, founder of the Free Software Foundation"/>
 \end{center}
 \end{figure}
 
-Because I didn't particularly like using either one, 
-and in the long run I have to
+Because in the long run I have to
 build my own anyway to demonstrate my metadata system. Designing the front end
 and the REST API simultaneously sets a goal for the back end--they are 
 inextricably connected.
 And to adapt a famous quote from the founder
 of the Free Software Foundation Richard Stallman, 
 I wanted to freely explore the metadata records in both ICPSR and DataONE
-Repositories: "free like freedom, not free like free beer". 
+Repositories: "free as in freedom, not free as in free beer". 
 
 A generic or pre-existing search interface won't
 be able to serve my needs exactly as I move forward. 
@@ -74,7 +85,7 @@ I want the interface to be a publication like
 a paper. We talk about software and data publications--let's make our own 
 software publication from this work. 
 Maybe someday people will write web apps for their work like some use
-\LaTeX for journal papers. 
+\LaTeX  for journal papers. 
 
 
 <p id="stallman-citation">
