@@ -106,7 +106,8 @@
       </tr>
     </thead>
     <tr ng-repeat="mdRecord in recordsList">
-      <td>{{ mdRecord.title }}</td>
+      <td><a title="Link back to original record"
+             href="{{ mdRecord.originalLink }}">{{ mdRecord.title }}</a></td>
       <td style="text-align:center" ng-repeat="mdstds in mdRecord.metadata_standards">{{ mdstds.name }}</td>
       <td>{{ mdRecord.start_datetime }}</td>
       <td>{{ mdRecord.end_datetime }}</td>

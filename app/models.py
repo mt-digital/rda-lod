@@ -5,6 +5,8 @@ will be a MongoEngine representation of a valid JSON-LD document.
 from . import db
 
 
+# TODO the next two models could inherit from the same class which could be
+# widely used everywhere we want a display name and a URL to link to.
 class MetadataStandard(db.EmbeddedDocument):
     """
     Which standard the metadata follows: no explicit restrictions, but at this
@@ -32,8 +34,11 @@ class NormalizedMetadata(db.Document):
     start_datetime = db.DateTimeField(required=True)
     end_datetime = db.DateTimeField(required=True)
 
+    identifier = db.StringField(max_length=100)
+
     # allow a list of standards in case they do indeed meet multiple standards
-    metadata_standard = db.ListField(db.EmbeddedDocumentField('MetadataStandard'))
+    metadata_standard = db.ListField(
+        db.EmbeddedDocumentField('MetadataStandard'))
 
     meta = {
         'indexes': [

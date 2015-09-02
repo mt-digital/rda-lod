@@ -15,7 +15,7 @@ from ..models import NormalizedMetadata
 def metadata():
     """Handle get and push requests coming to metadata server"""
 
-    docs = NormalizedMetadata.objects()[:1000]
+    docs = NormalizedMetadata.objects()[8000:9000]
 
     formatted_docs = [
 
@@ -50,7 +50,9 @@ def _format_normal_metadata(document):
     return {
         'id': str(document.id),
         'title': document.title,
-        'raw': 'http://{}/api/metadata/{}/raw'.format(request.host, document.id),
+        'native_identifier': document.identifier,
+        'raw':
+            'http://{}/api/metadata/{}/raw'.format(request.host, document.id),
         'permalink':
             'http://{}/api/metadata/{}'.format(request.host, document.id),
         'start_datetime': document.start_datetime.isoformat(),
@@ -65,6 +67,7 @@ BAD_DATETIME_RESPONSE = lambda datetime_query_key: Response(
 
     400
 )
+
 
 @api.route('/api/metadata/search', methods=['GET', 'PUT'])
 @cross_origin(origin='*', methods=['GET', 'PUT'],
@@ -97,7 +100,7 @@ def metadata_search():
                         )
                     )
 
-                except Exception as e:
+                except Exception:
                     return BAD_DATETIME_RESPONSE(k)
 
             elif k == 'max_start_datetime':
@@ -114,7 +117,6 @@ def metadata_search():
                 except:
 
                     return BAD_DATETIME_RESPONSE(k)
-
 
             elif k == 'min_end_datetime':
 
@@ -189,8 +191,6 @@ def get_single_xml_metadata(_oid):
     """
     record = NormalizedMetadata.objects.get_or_404(pk=_oid)
 
-    # raw_xml_string = '<?xml version="1.0" encoding="UTF-8" ?>' + \
-                     # json.loads(record.to_json())['raw']
     raw_xml_string = json.loads(record.to_json())['raw']
 
     return Response(raw_xml_string, 200, mimetype='application/xml')
