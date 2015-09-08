@@ -13,18 +13,28 @@ metadataEditorApp.controller('MetadataCtrl', ['$scope', '$http', '$log',
     // initialize list of existing metadata records
     displayAllRecords();
 
+    $scope.standards = {'eml': true, 'ddi': true};
+
     /**
      * Search for metadata records
      */
     $scope.searchStr = "";
     $scope.search = function()
     { 
-        $http.get('http://localhost:4000/api/metadata/search?title=' + 
-                  encodeURIComponent($scope.searchStr))
-             .success(function(data) {
-               data = prepareData(data);
-               $scope.recordsList = data.results; 
-             });
+      var title_search_str = 
+        $scope.searchStr === '' ? '' : '&title=' + $scope.searchStr;
+
+      var url = 'http://localhost:4000/api/metadata/search?' +
+                'eml=' + $scope.standards.eml + 
+                '&ddi=' + $scope.standards.ddi +
+                title_search_str;
+
+      $http.get(url)
+           .success(function(data) {
+             data = prepareData(data);
+             $scope.recordsList = data.results; 
+             $scope.resultCount = data.count;
+           });
     };
 
     function displayAllRecords()
@@ -33,6 +43,7 @@ metadataEditorApp.controller('MetadataCtrl', ['$scope', '$http', '$log',
            .success(function(data){ 
              data = prepareData(data);
              $scope.recordsList = data.results; 
+             $scope.resultCount = data.count;
            });
     }
     function prepareData(data)

@@ -24,7 +24,7 @@ def metadata():
         for document in docs
     ]
 
-    return jsonify(dict(results=formatted_docs, total=len(docs)))
+    return jsonify(dict(results=formatted_docs, count=len(docs)))
 
 
 def _text_search_jsonified(search_args):
@@ -76,29 +76,45 @@ def metadata_search():
     """Get the JSON representation of the metadata record with given id.
     """
     _known_keys = ('title', 'min_start_datetime', 'max_start_datetime',
-                   'min_end_datetime', 'max_end_datetime')
+                   'min_end_datetime', 'max_end_datetime', 'eml', 'ddi')
+
     search_args = request.args
 
     unknown_keys = []
-    search_results = []
+
+    search_all_standards = (
+        (('eml' in search_args and search_args['eml'] == 'true')
+         and ('ddi' in search_args and search_args['ddi'] == 'true'))
+        or ('eml' not in search_args and 'ddi' not in search_args)
+        )
+
+    # create base search object list by filtering standards
+    md_objs = None
+    if search_all_standards:
+        md_objs = NormalizedMetadata.objects()
+
+    elif 'eml' in search_args and search_args['eml'] == 'true':
+        md_objs = NormalizedMetadata.objects(
+            metadata_standard__name='EML'
+        )
+
+    elif 'ddi' in search_args and search_args['ddi'] == 'true':
+        md_objs = NormalizedMetadata.objects(
+            metadata_standard__name='DDI'
+        )
+
     for k in search_args.keys():
 
         if k in _known_keys:
-
             if k == 'title':
-
-                return _text_search_jsonified(search_args)
+                md_objs = md_objs.search_text(search_args[k])
 
             elif k == 'min_start_datetime':
 
                 val = search_args[k]
                 try:
                     parsed_date = dup.parse(val)
-                    search_results += list(
-                        NormalizedMetadata.objects(
-                            end_datetime__gt=parsed_date
-                        )
-                    )
+                    md_objs = md_objs.filter(end_datetime__gt=parsed_date)
 
                 except Exception:
                     return BAD_DATETIME_RESPONSE(k)
@@ -108,11 +124,7 @@ def metadata_search():
                 val = search_args[k]
                 try:
                     parsed_date = dup.parse(val)
-                    search_results += list(
-                        NormalizedMetadata.objects(
-                            start_datetime__lt=parsed_date
-                        )
-                    )
+                    md_objs = md_objs.filter(start_datetime__lt=parsed_date)
 
                 except:
 
@@ -123,11 +135,7 @@ def metadata_search():
                 val = search_args[k]
                 try:
                     parsed_date = dup.parse(val)
-                    search_results += list(
-                        NormalizedMetadata.objects(
-                            end_datetime__gt=parsed_date
-                        )
-                    )
+                    md_objs = md_objs.filter(end_datetime__gt=parsed_date)
 
                 except:
 
@@ -138,11 +146,7 @@ def metadata_search():
                 val = search_args[k]
                 try:
                     parsed_date = dup.parse(val)
-                    search_results += list(
-                        NormalizedMetadata.objects(
-                            end_datetime__lt=parsed_date
-                        )
-                    )
+                    md_objs = md_objs.filter(end_datetime__lt=parsed_date)
 
                 except:
 
@@ -152,22 +156,24 @@ def metadata_search():
             unknown_keys.append(k)
 
     if unknown_keys:
+
         return "<h1>Unknown Key(s): {}</h1>".format(', '.join(unknown_keys))
 
     else:
-        return _jsonified_search_results(search_results)
 
+        return _jsonified_search_results(md_objs)
 
 def _jsonified_search_results(search_results):
     """
     helper for formatting a list of search results into the jsonified
     version that is ready to return from a view function
     """
-    return jsonify(dict(results=[
+    return jsonify(dict(count=len(search_results),
+                        results=[
         _format_normal_metadata(document)
         for document in search_results
-        ]
-    ))
+        ])
+    )
 
 
 @api.route('/api/metadata/<string:_oid>')
