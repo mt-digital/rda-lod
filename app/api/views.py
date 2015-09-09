@@ -3,6 +3,7 @@ import json
 import dateutil.parser as dup
 
 from flask import request, jsonify, Response
+from flask import current_app as app
 from flask_cors import cross_origin
 
 from . import api
@@ -47,14 +48,20 @@ def _text_search_jsonified(search_args):
 
 
 def _format_normal_metadata(document):
+    append = ''
+    if app.config['PRODUCTION']:
+        append = '/lidd'
+
     return {
         'id': str(document.id),
         'title': document.title,
         'native_identifier': document.identifier,
         'raw':
-            'http://{}/api/metadata/{}/raw'.format(request.host, document.id),
+            'http://{}{}/api/metadata/{}/raw'.format(request.host,
+                                                     append, document.id),
         'permalink':
-            'http://{}/api/metadata/{}'.format(request.host, document.id),
+            'http://{}{}/api/metadata/{}'.format(request.host,
+                                                 append, document.id),
         'start_datetime': document.start_datetime.isoformat(),
         'end_datetime': document.end_datetime.isoformat(),
         'metadata_standards': document.metadata_standard
