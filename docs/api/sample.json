@@ -1,0 +1,22 @@
+{
+  "swagger": "2.0",
+  "info": {
+      "description": "Linked Metadata API for the Linked Interdisciplinary Data Discover Tool (LIDD)",
+      "version": "0.1",
+      "title": "LIDD API",
+      "contact": {
+          "email": "maturner01@gmail.com"
+      }
+  },
+  "schemes": ["https"],
+  "host": "mt.northwestknowledge.net",
+  "basePath": "/lidd/api",
+  "paths": {
+      "/metadata": {
+          "get": {
+              "summary": "Get a list of all metadata records",
+              "produces": ["application/json"]
+          }
+      }
+  }
+}
