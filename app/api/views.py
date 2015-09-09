@@ -3,6 +3,7 @@ import json
 import dateutil.parser as dup
 
 from flask import request, jsonify, Response
+from flask import current_app as app
 from flask_cors import cross_origin
 
 from . import api
@@ -15,7 +16,7 @@ from ..models import NormalizedMetadata
 def metadata():
     """Handle get and push requests coming to metadata server"""
 
-    docs = NormalizedMetadata.objects()[8000:9000]
+    docs = NormalizedMetadata.objects()[8000:8100]
 
     formatted_docs = [
 
@@ -47,14 +48,20 @@ def _text_search_jsonified(search_args):
 
 
 def _format_normal_metadata(document):
+    append = ''
+    if app.config['PRODUCTION']:
+        append = '/lidd'
+
     return {
         'id': str(document.id),
         'title': document.title,
         'native_identifier': document.identifier,
         'raw':
-            'http://{}/api/metadata/{}/raw'.format(request.host, document.id),
+            'http://{}{}/api/metadata/{}/raw'.format(request.host,
+                                                     append, document.id),
         'permalink':
-            'http://{}/api/metadata/{}'.format(request.host, document.id),
+            'http://{}{}/api/metadata/{}'.format(request.host,
+                                                 append, document.id),
         'start_datetime': document.start_datetime.isoformat(),
         'end_datetime': document.end_datetime.isoformat(),
         'metadata_standards': document.metadata_standard
@@ -89,9 +96,9 @@ def metadata_search():
         )
 
     # create base search object list by filtering standards
-    md_objs = None
+    md_objs = NormalizedMetadata.objects()
     if search_all_standards:
-        md_objs = NormalizedMetadata.objects()
+        pass
 
     elif 'eml' in search_args and search_args['eml'] == 'true':
         md_objs = NormalizedMetadata.objects(
@@ -106,20 +113,21 @@ def metadata_search():
     for k in search_args.keys():
 
         if k in _known_keys:
+
             if k == 'title':
                 md_objs = md_objs.search_text(search_args[k])
 
-            elif k == 'min_start_datetime':
+            if k == 'min_start_datetime':
 
                 val = search_args[k]
                 try:
                     parsed_date = dup.parse(val)
-                    md_objs = md_objs.filter(end_datetime__gt=parsed_date)
+                    md_objs = md_objs.filter(start_datetime__gt=parsed_date)
 
                 except Exception:
                     return BAD_DATETIME_RESPONSE(k)
 
-            elif k == 'max_start_datetime':
+            if k == 'max_start_datetime':
 
                 val = search_args[k]
                 try:
@@ -130,7 +138,7 @@ def metadata_search():
 
                     return BAD_DATETIME_RESPONSE(k)
 
-            elif k == 'min_end_datetime':
+            if k == 'min_end_datetime':
 
                 val = search_args[k]
                 try:
@@ -141,7 +149,7 @@ def metadata_search():
 
                     return BAD_DATETIME_RESPONSE(k)
 
-            elif k == 'max_end_datetime':
+            if k == 'max_end_datetime':
 
                 val = search_args[k]
                 try:
@@ -161,7 +169,8 @@ def metadata_search():
 
     else:
 
-        return _jsonified_search_results(md_objs)
+        return _jsonified_search_results(md_objs[:1000])
+
 
 def _jsonified_search_results(search_results):
     """
