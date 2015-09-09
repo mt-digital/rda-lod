@@ -24,7 +24,7 @@ metadataEditorApp.controller('MetadataCtrl', ['$scope', '$http', '$log',
       var title_search_str = 
         $scope.searchStr === '' ? '' : '&title=' + $scope.searchStr;
 
-      var url = 'http://localhost:4000/api/metadata/search?' +
+      var url = 'https://mt.northwestknowledge.net/lidd/api/metadata/search?' +
                 'eml=' + $scope.standards.eml + 
                 '&ddi=' + $scope.standards.ddi +
                 title_search_str;
@@ -39,7 +39,7 @@ metadataEditorApp.controller('MetadataCtrl', ['$scope', '$http', '$log',
 
     function displayAllRecords()
     {
-      $http.get('http://localhost:4000/api/metadata')
+      $http.get('https://mt.northwestknowledge.net/lidd/api/metadata')
            .success(function(data){ 
              data = prepareData(data);
              $scope.recordsList = data.results; 
