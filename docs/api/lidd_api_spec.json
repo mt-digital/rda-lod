@@ -24,7 +24,12 @@
                 "metadata"
               ],
               "summary": "Get a list of all metadata records",
-              "produces": ["application/json"]
+              "produces": ["application/json"],
+              "responses": {
+                "200": {
+                    "description": "Success"
+                }
+              }
           }
       },
       "/metadata/{id}": {
@@ -43,7 +48,12 @@
                       "required": true,
                       "type": "string"
                   }
-              ]
+              ],
+              "responses": {
+                "200": {
+                    "description": "Success"
+                }
+              }
           }
       },
       "/metadata/{id}/raw": {
@@ -62,7 +72,12 @@
                       "required": true,
                       "type": "string"
                   }
-              ]
+              ],
+              "responses": {
+                "200": {
+                    "description": "Success"
+                }
+              }
           }
       },
       "/metadata/search": {
@@ -130,7 +145,12 @@
                     "default": "2015-01-01T00:00:00"
                 }
 
-              ]
+              ],
+              "responses": {
+                "200": {
+                    "description": "Success"
+                }
+              }
           }
       }
   }
