@@ -85,7 +85,7 @@
           }
       },
 
-      "/metadata/geo/nearby": {
+      "/metadata/geo/near": {
           "get": {
             "tags": [
                 "geospatial"
@@ -116,6 +116,13 @@
                   "required": false,
                   "type": "integer",
                   "default": 100
+              },
+              {
+                  "name": "metadata_standard",
+                  "in": "query",
+                  "description": "limit to a particular metadata standard",
+                  "required": false,
+                  "type": "string"
               }
             ]
         }
@@ -168,17 +175,24 @@
                   "required": false,
                   "type": "integer",
                   "default": 100
+              },
+              {
+                  "name": "metadata_standard",
+                  "in": "query",
+                  "description": "limit to a particular metadata standard",
+                  "required": false,
+                  "type": "string"
               }
             ]
         }
       },
 
-      "/metadata/{id}/geo/nearby": {
+      "/metadata/{id}/geo/near": {
           "get": {
               "tags": [
                 "geospatial" 
               ],
-              "summary": "user-constrained list of records for data products collected nearby",
+              "summary": "user-constrained list of records for data products collected near",
               "produces": ["application/json"],
               "parameters": [
                 {
@@ -198,7 +212,7 @@
                 {
                     "name": "maxDistance",
                     "in": "query",
-                    "description": "Maximum distance in away a nearby record may be",
+                    "description": "Maximum distance away a nearby record may be",
                     "required": false,
                     "type": "integer"
                 }

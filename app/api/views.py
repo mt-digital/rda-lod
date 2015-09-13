@@ -55,6 +55,7 @@ def _format_normal_metadata(document):
     return {
         'id': str(document.id),
         'title': document.title,
+        'abstract': document.abstract,
         'native_identifier': document.identifier,
         'raw':
             'http://{}{}/api/metadata/{}/raw'.format(request.host,
@@ -64,6 +65,7 @@ def _format_normal_metadata(document):
                                                  append, document.id),
         'start_datetime': document.start_datetime.isoformat(),
         'end_datetime': document.end_datetime.isoformat(),
+        'geo_center': document.geo_center,
         'metadata_standards': document.metadata_standard
     }
 
@@ -211,15 +213,23 @@ def get_single_xml_metadata(_oid):
     return Response(raw_xml_string, 200, mimetype='application/xml')
 
 
-@api.route('/api/metadata/geo/nearby')
+MD_STD_DICT = {
+    'ddi': 'DDI',
+    'eml': 'EML'
+}
+
+
+@api.route('/api/metadata/geo/within')
 @cross_origin(origin='*', methods=['GET'])
-def nearby_point():
+def within_box():
     """
-    Parse lat and lon from query and do nearby query in Mongo.
+    Parse lat and lon from query and do near query in Mongo.
     """
     try:
-        lat = int(request.args['lat'])
-        lon = int(request.args['lon'])
+        n = float(request.args['north'])
+        s = float(request.args['south'])
+        e = float(request.args['east'])
+        w = float(request.args['west'])
 
     except KeyError:
         raise InvalidUsage(
@@ -227,10 +237,54 @@ def nearby_point():
             'from/in the query',
             status_code=410)
 
-    limit = request.args['limit'] if 'limit' in request.args else None
+    limit = int(request.args['limit']) if 'limit' in request.args else 100
+    try:
+        metadata_standard = request.args['metadata_standard']
+        # execute mongo query, jsonify results
+        metadata_standard = MD_STD_DICT[metadata_standard]
+        qres = NormalizedMetadata.objects(
+            geo_center__geo_within_box=[(w, s), (e, n)],
+            metadata_standard__name=metadata_standard
+        )[:limit]
+    except KeyError:
+        # execute mongo query, jsonify results
+        qres = NormalizedMetadata.objects(
+            geo_center__geo_within_box=[(w, s), (e, n)]
+        )[:limit]
 
-    # execute mongo query, jsonify results
-    qres = NormalizedMetadata.objects(geo__center__near=[lon, lat])[:limit]
+    return _jsonified_search_results(qres)
+
+
+@api.route('/api/metadata/geo/near')
+@cross_origin(origin='*', methods=['GET'])
+def near_point():
+    """
+    Parse lat and lon from query and do near query in Mongo.
+    """
+    try:
+        lat = float(request.args['lat'])
+        lon = float(request.args['lon'])
+
+    except KeyError:
+        raise InvalidUsage(
+            'required parameters lat and lon are missing or not integers '
+            'from/in the query',
+            status_code=410)
+
+    limit = int(request.args['limit']) if 'limit' in request.args else 100
+    try:
+        metadata_standard = request.args['metadata_standard']
+        metadata_standard = MD_STD_DICT[metadata_standard]
+
+        qres = NormalizedMetadata.objects(
+            geo_center__near=[lon, lat],
+            metadata_standard__name=metadata_standard
+        )[:limit]
+
+    except KeyError:
+        qres = NormalizedMetadata.objects(
+            geo_center__near=[lon, lat]
+        )[:limit]
 
     return _jsonified_search_results(qres)
 
