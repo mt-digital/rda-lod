@@ -10,6 +10,10 @@ class Config:
     SECRET_KEY = os.environ.get('VW_SECRET_KEY') or 'hard to guess string'
     MONGODB_SETTINGS = {'db': 'rda_lod'}
 
+    DEVELOPMENT = False
+    DEBUG = False
+    PRODUCTION = False
+
     @staticmethod
     def init_app(app):
         pass

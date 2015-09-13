@@ -8,7 +8,7 @@
           "email": "maturner01@gmail.com"
       }
   },
-  "schemes": ["https"],
+  "schemes": ["http"],
   "tags": [
       {
           "name": "metadata",
