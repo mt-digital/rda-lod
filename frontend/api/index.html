@@ -30,8 +30,8 @@
   <script type="text/javascript">
     $(function () {
       var url = window.location.search.match(/url=([^&]+)/);
-      if (url && url.length > 1) {
-        url = decodeURIComponent(url[1]);
+      if (window.location.host.indexOf('localhost') > -1) {
+        url = "lidd_api_spec_local.json";
       } else {
         url = "lidd_api_spec.json";
       }
