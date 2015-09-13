@@ -33,7 +33,7 @@ class NormalizedMetadata(db.Document):
     title = db.StringField(required=True)
     start_datetime = db.DateTimeField(required=True)
     end_datetime = db.DateTimeField(required=True)
-    abstract = db.StringField(required=True)
+    abstract = db.StringField()
     geo_center = db.PointField()
 
     identifier = db.StringField(max_length=100)

@@ -2,14 +2,16 @@
 ICPSR Parser for ingestion into normalized-for-discovery (nfd) metadata store.
 """
 import re
+import collections
 import warnings
-
 import calendar
 import json
 
 from datetime import datetime
 import dateutil.parser as dup
 import xmltodict as x2d
+
+import geocoder
 
 from app.models import NormalizedMetadata
 
@@ -21,16 +23,20 @@ def make_normalized_icpsr(icpsr_file=None):
 
         raw = RawICPSR(icpsr_file)
         date_range = NormalizedDateEntry(raw)
+        geo_center = _extract_geo_center(raw)
         start_date = date_range.start_time
         end_date = date_range.end_time
 
         title = _extract_title(raw)
+        abstract = _extract_abstract(raw)
         identifier = _extract_identifier(raw)
 
         document_str = json.dumps(
             dict(raw=raw.text,
                  title=title,
+                 abstract=abstract,
                  identifier=identifier,
+                 geo_center=geo_center,
                  start_datetime=start_date.isoformat(),
                  end_datetime=end_date.isoformat(),
                  metadata_standard=[{'name': 'DDI', 'reference': DDI_DOC_URL}]
@@ -48,6 +54,66 @@ def _extract_title(raw_icpsr):
 def _extract_identifier(raw_icpsr):
     md = raw_icpsr.metadata_dict
     return md['codeBook']['docDscr']['citation']['titlStmt']['IDNo']
+
+
+def _extract_abstract(raw_icpsr):
+    md = raw_icpsr.metadata_dict
+    try:
+        abstract = md['codeBook']['stdyDscr']['stdyInfo']['abstract']
+        if type(abstract) == list:
+            try:
+                abstract = "\n".join(abstract)
+            except:
+                abstract = None
+
+        elif type(abstract) == collections.OrderedDict:
+            try:
+                abstract = '\n'.join(abstract['p'])
+            except:
+                try:
+                    abstract = abstract['p']
+                except:
+                    abstract = None
+
+        else:
+            abstract = None
+
+        return abstract
+
+    except KeyError:
+        return None
+
+def _extract_geo_center(raw_icpsr):
+
+    md = raw_icpsr.metadata_dict
+    geo_center = None
+    try:
+        geo_cover = md['codeBook']['stdyDscr']['stdyInfo']['sumDscr']['geogCover']
+
+        # keeping anti-information out of the system
+        if geo_cover == 'United States':
+            geo_cover = None
+
+    except:
+        geo_cover = None
+
+    if geo_cover and type(geo_cover) == str:
+
+        geoc = geocoder.google(geo_cover)
+        s = geoc.south
+        w = geoc.west
+        n = geoc.north
+        e = geoc.east
+
+        lon = w + ((e - w)/2.0)
+        lat = s + ((n - s)/2.0)
+        geo_center = (lon, lat)
+
+    else:
+        # import ipdb; ipdb.set_trace()
+        pass
+
+    return geo_center
 
 
 class NormalizedDateEntry:
