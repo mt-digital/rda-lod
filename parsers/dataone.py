@@ -26,6 +26,7 @@ DEFAULT_DATETIMES = (datetime(1000, 1, 1), datetime(3000, 1, 1))
 
 CARD_DIR_LIST = ['west', 'east', 'north', 'south']
 
+
 def make_normalized_dataone(dataone_file=None):
     """
     The super function for dataone normalization. Will check if the record is
@@ -33,19 +34,23 @@ def make_normalized_dataone(dataone_file=None):
     """
     # parse
     raw_dataone = RawDataone(dataone_file)
-    tree = raw_dataone.etree
-
-    root_tag = tree.getroot().tag
-
     nmd = None
+    try:
+        tree = raw_dataone.etree
 
-    # if EML
-    if 'eml' in root_tag:
-        nmd = _make_normalized_eml(raw_dataone)
+        root_tag = tree.getroot().tag
 
-    # if DC
+        # if EML
+        if 'eml' in root_tag:
+            nmd = _make_normalized_eml(raw_dataone)
 
-    # if ISO
+        # if DC
+
+        # if ISO
+
+    except:
+        warnings.warn("No valid DataONE metadata standard detected for file" +
+                      dataone_file)
 
     else:
         warnings.warn("No valid DataONE metadata standard detected for file" +
@@ -57,24 +62,18 @@ def make_normalized_dataone(dataone_file=None):
 def _make_normalized_dublin_core(xml):
     pass
 
-
-def _make_normalized_eml(raw_dataone):
+def _get_eml_datetimes(coverage):
     """
-    See https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1
+    given the coverage element of an EML record, extract the start and end
+    datetimes
+
+    Arguments:
+        (xml Element)
+
+    Returns:
+        (datetime.datetime, datetime.datetime): two-tuple of
+            start and end temporal coverage
     """
-    root = raw_dataone.etree.getroot()
-
-    dataset = root.find('dataset')
-    if not dataset:
-        return None
-
-    # TEMPORAL & GEOGRAPHIC COVERAGE
-    coverage = dataset.find('coverage')
-
-    if not coverage:
-        return None
-
-    # temporal
     temporal_coverage = coverage.find('temporalCoverage')
 
     if temporal_coverage:
@@ -141,19 +140,69 @@ def _make_normalized_eml(raw_dataone):
 
         start_date, end_date = DEFAULT_DATETIMES
 
-    # geographic
+    return (start_date, end_date)
+
+
+def _get_eml_geospatial(coverage):
+    """
+    Given a coverage element from EML metadata, extract the geospatial info
+    of interest. Currently we are tracking only the bounding box center
+    coordinate (lon, lat) in the order specified by MongoDB, _not_ what is
+    maybe more standard, (lat, lon); see
+    https://en.wikipedia.org/wiki/ISO_6709#General_rules
+
+    Arguments:
+        coverage (xml Element): EML coverage element
+
+    Returns:
+        ((float, float)): two-tuple of geographic center of dataset coverage
+            in order (lon, lat)
+    """
     geo_coverage = coverage.find('geographicCoverage/boundingCoordinates')
 
-    bbox = None
     if geo_coverage:
+
         try:
             bbox = {
-                card_dir:
-                    float(geo_coverage.find(card_dir + 'BoundingCoordinate').text)
+                card_dir: float(
+                    geo_coverage.find(card_dir + 'BoundingCoordinate').text
+                )
                 for card_dir in CARD_DIR_LIST
             }
+
+            lon = bbox['west'] + ((bbox['east'] - bbox['west'])/2.0)
+            lat = bbox['south'] + ((bbox['north'] - bbox['south'])/2.0)
+
+            if abs(lon) < 180 and abs(lat) < 90:
+                return (lon, lat)
+
+            else:
+                return None
+
         except TypeError:
-            bbox = {card_dir: None for card_dir in CARD_DIR_LIST}
+            return None
+
+    return None
+
+
+def _make_normalized_eml(raw_dataone):
+    """
+    See https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1
+    """
+    root = raw_dataone.etree.getroot()
+
+    dataset = root.find('dataset')
+    if not dataset:
+        return None
+
+    # TEMPORAL & GEOGRAPHIC COVERAGE
+    coverage = dataset.find('coverage')
+
+    if not coverage:
+        return None
+
+    start_date, end_date = _get_eml_datetimes(coverage)
+    geo_center = _get_eml_geospatial(coverage)
 
     # TITLE AND ABSTRACT
     # get title
@@ -182,9 +231,10 @@ def _make_normalized_eml(raw_dataone):
     return NormalizedMetadata.from_json(json.dumps(
         dict(raw=raw_dataone.text,
              title=title,
-             # abstract=abstract,
+             abstract=abstract,
              start_datetime=start_date.isoformat(),
              end_datetime=end_date.isoformat(),
+             geo_center=geo_center,
              metadata_standard=[{'name': 'EML',
                                  'reference': EML_SPECIFICATION_URL
                                  }

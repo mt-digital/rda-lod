@@ -33,6 +33,8 @@ class NormalizedMetadata(db.Document):
     title = db.StringField(required=True)
     start_datetime = db.DateTimeField(required=True)
     end_datetime = db.DateTimeField(required=True)
+    abstract = db.StringField(required=True)
+    geo_center = db.PointField()
 
     identifier = db.StringField(max_length=100)
 
@@ -44,7 +46,8 @@ class NormalizedMetadata(db.Document):
         'indexes': [
             'title',
             '$title',
-            ('start_datetime', 'end_datetime')
+            ('start_datetime', 'end_datetime'),
+            # ('geo_center', '2dsphere')
         ],
         'allow_inheritance': True
     }
