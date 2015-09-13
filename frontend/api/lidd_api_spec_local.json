@@ -12,7 +12,11 @@
   "tags": [
       {
           "name": "metadata",
-          "description": "Methods for searching linked metadata from a variety of repositories"
+          "description": "General search for linked metadata from a variety of repositories"
+      },
+      {
+          "name": "geospatial",
+          "description": "Query records geospatially; find geospatially similar datasets"
       }
   ],
   "host": "localhost:4000",
@@ -23,7 +27,7 @@
               "tags": [
                 "metadata"
               ],
-              "summary": "Get a list of all metadata records",
+              "summary": "list of all metadata records",
               "produces": ["application/json"],
               "responses": {
                 "200": {
@@ -37,7 +41,7 @@
               "tags": [
                   "metadata"
               ],
-              "summary": "Get a single JSON linked metadata record",
+              "summary": "single JSON linked metadata record",
               "description": "To test this out, take one of the 'id' fields from /metadata above",
               "produces": ["application/json"],
               "parameters": [
@@ -61,7 +65,7 @@
               "tags": [
                   "metadata"
               ],
-              "summary": "Get a single original (native format) XML metadata record",
+              "summary": "single original (native format) XML metadata record",
               "description": "To test this out, take one of the 'id' fields from /metadata above",
               "produces": ["application/json"],
               "parameters": [
@@ -80,6 +84,134 @@
               }
           }
       },
+
+      "/metadata/geo/nearby": {
+          "get": {
+            "tags": [
+                "geospatial"
+            ],
+            "summary": "user-constrained list of records within given (required) lat and lon",
+            "produces": ["application/json"],
+            "parameters": [
+              {
+                  "name": "lat",
+                  "in": "query",
+                  "description": "latitude of center point",
+                  "required": true,
+                  "type": "integer",
+                  "default": "40.439722"
+              },
+              {
+                  "name": "lon",
+                  "in": "query",
+                  "description": "longitude of center point",
+                  "requried": true,
+                  "type": "integer",
+                  "default": "-79.976389"
+              },
+              {
+                  "name": "limit",
+                  "in": "query",
+                  "description": "take only this many closest records",
+                  "required": false,
+                  "type": "integer",
+                  "default": 100
+              }
+            ]
+        }
+      },
+
+      "/metadata/geo/within": {
+          "get": {
+            "tags": [
+                "geospatial"
+            ],
+            "summary": "user-constrained list of records within given (required) lat and lon",
+            "produces": ["application/json"],
+            "parameters": [
+              {
+                  "name": "north",
+                  "in": "query",
+                  "description": "latitude of center point",
+                  "required": true,
+                  "type": "integer",
+                  "default": "39.9709"
+              },
+              {
+                  "name": "south",
+                  "in": "query",
+                  "description": "longitude of center point",
+                  "requried": true,
+                  "type": "integer",
+                  "default": "35.1593"
+              }, 
+              {
+                  "name": "east",
+                  "in": "query",
+                  "description": "latitude of center point",
+                  "required": true,
+                  "type": "integer",
+                  "default": "-74.4594"
+              },
+              {
+                  "name": "west",
+                  "in": "query",
+                  "description": "longitude of center point",
+                  "requried": true,
+                  "type": "integer",
+                  "default": "-78.2623"
+              },
+              {
+                  "name": "limit",
+                  "in": "query",
+                  "description": "take only this many closest records",
+                  "required": false,
+                  "type": "integer",
+                  "default": 100
+              }
+            ]
+        }
+      },
+
+      "/metadata/{id}/geo/nearby": {
+          "get": {
+              "tags": [
+                "geospatial" 
+              ],
+              "summary": "user-constrained list of records for data products collected nearby",
+              "produces": ["application/json"],
+              "parameters": [
+                {
+                    "name": "id",
+                    "in": "url",
+                    "description": "id of the record of interest",
+                    "required": true,
+                    "type": "string"   
+                },
+                {
+                    "name": "limit",
+                    "in": "query",
+                    "description": "Limit the number of results to this many closest records",
+                    "required": false,
+                    "type": "integer"
+                },
+                {
+                    "name": "maxDistance",
+                    "in": "query",
+                    "description": "Maximum distance in away a nearby record may be",
+                    "required": false,
+                    "type": "integer"
+                }
+              ],
+              "responses":
+              {
+                  "404": {
+                      "description": "Invalid ID, record not found"
+                  }
+              }
+          }
+      },
+
       "/metadata/search": {
           "get": {
               "tags": [
