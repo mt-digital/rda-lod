@@ -209,3 +209,49 @@ def get_single_xml_metadata(_oid):
     raw_xml_string = json.loads(record.to_json())['raw']
 
     return Response(raw_xml_string, 200, mimetype='application/xml')
+
+
+@api.route('/api/metadata/geo/nearby')
+@cross_origin(origin='*', methods=['GET'])
+def nearby_point():
+    """
+    Parse lat and lon from query and do nearby query in Mongo.
+    """
+    try:
+        lat = int(request.args['lat'])
+        lon = int(request.args['lon'])
+
+    except KeyError:
+        raise InvalidUsage(
+            'required parameters lat and lon are missing or not integers '
+            'from/in the query',
+            status_code=410)
+
+    limit = request.args['limit'] if 'limit' in request.args else None
+
+    # execute mongo query, jsonify results
+    qres = NormalizedMetadata.objects(geo__center__near=[lon, lat])[:limit]
+
+    return _jsonified_search_results(qres)
+
+
+class InvalidUsage(Exception):
+    status_code = 400
+
+    def __init__(self, message, status_code=None, payload=None):
+        Exception.__init__(self)
+        self.message = message
+        if status_code is not None:
+            self.status_code = status_code
+        self.payload = payload
+
+    def to_dict(self):
+        rv = dict(self.payload or ())
+        rv['message'] = self.message
+        return rv
+
+
+@api.errorhandler(InvalidUsage)
+def handle_invalid_usage(error):
+    response = jsonify(error.to_dict())
+    response.status_code
