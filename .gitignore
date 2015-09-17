@@ -4,3 +4,4 @@ proposal.pdf
 proposal.docx
 venv
 *.pyc
+frontend/bower_components/
