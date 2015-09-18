@@ -1,6 +1,9 @@
 """
 Normalized metadata model for the app. Over time the NormalizedMetadata class
 will be a MongoEngine representation of a valid JSON-LD document.
+
+Author: Matthew Turner <maturner@uidaho.edu>
+Date: 9/17/2015
 """
 from . import db
 
@@ -19,6 +22,31 @@ class MetadataStandard(db.EmbeddedDocument):
     """
     name = db.StringField(max_length=20, required=True)
     reference = db.URLField()
+
+
+class ContextEntry(db.EmbeddedDocument):
+    """
+    Defines an identifier for JSON-LD
+    """
+    id_ = db.StringField(required=True)
+
+
+class Context(db.EmbeddedDocument):
+    """
+    Encapsulate the _context_ element from a JSON-LD document. Two of each of
+    these is embedded in NormalizedMetadata: one for the normalized context
+    (eventually HCLS) and one for the native context (DDI, EML, etc).
+
+    These will shadow the fields given in NormalizedMetadata, with some
+    changes, e.g. can't use @id as a field name in Python. So we'll deal with
+    that in to_jsonld(self, type='native'/'normalized').o
+    """
+    title = db.EmbeddedDocumentField('ContextEntry')
+    start_datetime = db.EmbeddedDocumentField('ContextEntry')
+    end_datetime = db.EmbeddedDocumentField('ContextEntry')
+    abstract = db.EmbeddedDocumentField('ContextEntry')
+    geo_center = db.EmbeddedDocumentField('ContextEntry')
+    identifier = db.EmbeddedDocumentField('ContextEntry')
 
 
 class NormalizedMetadata(db.Document):
@@ -47,7 +75,6 @@ class NormalizedMetadata(db.Document):
             'title',
             '$title',
             ('start_datetime', 'end_datetime'),
-            # ('geo_center', '2dsphere')
         ],
         'allow_inheritance': True
     }
