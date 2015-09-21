@@ -54,11 +54,11 @@ def make_normalized_icpsr(icpsr_file=None):
 
 DDI_NORMALIZED_CONTEXT = Context.from_json(
     {
-        'title': {'id_': DDI_SPEC_BASE + 'titl'},
-        'start_datetime': {'id_': DDI_SPEC_BASE + 'titl'},
-        'end_datetime': {'id_': DDI_SPEC_BASE + 'titl'},
-        '': {'id_': DDI_SPEC_BASE + 'titl'},
-        'abstract': {'id_': DDI_SPEC_BASE + 'abstract'},
+        'title': DDI_SPEC_BASE + 'titl',
+        'start_datetime': DDI_SPEC_BASE + 'timePrd-start',
+        'end_datetime': DDI_SPEC_BASE + 'timePrd-start',
+        'native_identifier': DDI_SPEC_BASE + 'IDNo',
+        'abstract': DDI_SPEC_BASE + 'abstract'
     }
 )
 
@@ -250,3 +250,4 @@ def _get_time_periods(raw_icpsr):
         end_time = datetime(3000, 1, 1)
 
     return start_time, end_time
+}

@@ -5,6 +5,8 @@ will be a MongoEngine representation of a valid JSON-LD document.
 Author: Matthew Turner <maturner@uidaho.edu>
 Date: 9/17/2015
 """
+from pyld import jsonld
+
 from . import db
 
 
@@ -21,32 +23,8 @@ class MetadataStandard(db.EmbeddedDocument):
     http://example.com/api/doc/field_definitions#start_date
     """
     name = db.StringField(max_length=20, required=True)
+    # reference to be used for non-specification documentation
     reference = db.URLField()
-
-
-class ContextEntry(db.EmbeddedDocument):
-    """
-    Defines an identifier for JSON-LD
-    """
-    id_ = db.StringField(required=True)
-
-
-class Context(db.EmbeddedDocument):
-    """
-    Encapsulate the _context_ element from a JSON-LD document. Two of each of
-    these is embedded in NormalizedMetadata: one for the normalized context
-    (eventually HCLS) and one for the native context (DDI, EML, etc).
-
-    These will shadow the fields given in NormalizedMetadata, with some
-    changes, e.g. can't use @id as a field name in Python. So we'll deal with
-    that in to_jsonld(self, type='native'/'normalized').o
-    """
-    title = db.EmbeddedDocumentField('ContextEntry')
-    start_datetime = db.EmbeddedDocumentField('ContextEntry')
-    end_datetime = db.EmbeddedDocumentField('ContextEntry')
-    abstract = db.EmbeddedDocumentField('ContextEntry')
-    geo_center = db.EmbeddedDocumentField('ContextEntry')
-    identifier = db.EmbeddedDocumentField('ContextEntry')
 
 
 class NormalizedMetadata(db.Document):
@@ -67,8 +45,7 @@ class NormalizedMetadata(db.Document):
     identifier = db.StringField(max_length=100)
 
     # allow a list of standards in case they do indeed meet multiple standards
-    metadata_standard = db.ListField(
-        db.EmbeddedDocumentField('MetadataStandard'))
+    metadata_standard = db.EmbeddedDocumentField('MetadataStandard')
 
     meta = {
         'indexes': [
@@ -79,9 +56,16 @@ class NormalizedMetadata(db.Document):
         'allow_inheritance': True
     }
 
-    def format_dates(self):
+    def to_jsonld(self, context):
         """
-        Our web form needs the date to be in YYYY-MM-DD (ISO 8601)
+        Use metadata_standard.specification_root to build an expanded jsonld
+        metadata record
         """
-        for el in [self.start_date, self.end_date, self.first_pub_date]:
-            el = el.isoformat()
+        non_ld = json.loads(self.to_json())
+
+        non_ld = {
+            k: non_ld[k]
+                for k in ['title', 'start_datetime',
+                          'end_datetime', 'geo_center']
+        }
+        return jsonld.expand(non_ld, {'expandContext': context})
