@@ -61,11 +61,9 @@ class NormalizedMetadata(db.Document):
         Use metadata_standard.specification_root to build an expanded jsonld
         metadata record
         """
+        self_json = json.loads(self.to_json())
 
-
-        non_ld = json.loads(self.to_json())
-
-        return jsonld.expand(non_ld, {'expandContext': context})
+        return jsonld.compact(non_ld, context, {'expandContext': context})
 
 
 HCLS_NORMALIZED_MAPPABLE = {
