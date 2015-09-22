@@ -2,6 +2,7 @@
 import json
 import dateutil.parser as dup
 
+from cgi import escape
 from flask import request, jsonify, Response
 from flask import current_app as app
 from flask_cors import cross_origin
@@ -236,7 +237,7 @@ def get_single_nquads_metadata(_oid):
     jld = record.to_jsonld()
     rdf_string = jsonld.to_rdf(jld, options={'format': 'application/nquads'})
 
-    return Response(rdf_string, 200, mimetype='application/nquads')
+    return Response(escape(rdf_string))
 
 
 MD_STD_DICT = {
