@@ -56,16 +56,55 @@ class NormalizedMetadata(db.Document):
         'allow_inheritance': True
     }
 
-    def to_jsonld(self, context):
+    def to_jsonld(self):
         """
         Use metadata_standard.specification_root to build an expanded jsonld
         metadata record
         """
+
+
         non_ld = json.loads(self.to_json())
 
-        non_ld = {
-            k: non_ld[k]
-                for k in ['title', 'start_datetime',
-                          'end_datetime', 'geo_center']
-        }
         return jsonld.expand(non_ld, {'expandContext': context})
+
+
+HCLS_NORMALIZED_MAPPABLE = {
+    'title': 'dct:title',
+    'start_datetime': 'dbpedia:StartDateTime',
+    'end_datetime': 'dbpedia:EndDateTime',
+    'geo_center': 'lidd:geo_center'
+}
+
+
+# not all used, but these are all from
+HCLS_PLUS_CONTEXT = {
+    'cito': 'http://purl.org/spar/cito/',
+    'dcat': 'http://www.w3.org/ns/dcat#',
+    'dctypes': 'http://purl.org/dc/dcmitype/',
+    'dct': 'http://purl.org/dc/terms/',
+    'foaf': 'http://xmlns.com/foaf/0.1/',
+    'freq': 'http://purl.org/cld/freq/',
+    'idot': 'http://identifiers.org/terms#',
+    'lexvo': 'http://lexvo.org/ontology#',
+    'pav': 'http://purl.org/pav/',
+    'prov': 'http://www.w3.org/ns/prov#',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+    'sd': 'http://www.w3.org/ns/sparql-service-description#',
+    'xsd': 'http://www.w3.org/2001/XMLSchema#',
+    'vann': 'http://purl.org/vocab/vann/',
+
+    # non-hcls
+    'lidd': 'https://mt.northwestknowledge.net/lidd/terms#',
+    'dbpedia': 'http://mappings.dbpedia.org/index.php/OntologyProperty:',
+    'dbpedia:StartDateTime': {
+        'rdfs:label@en': 'start date and time',
+        'rdfs:comment@en': 'ISO 8601 formatted start date and time',
+        '@type': 'xsd:dateTime'
+    },
+    'dbpedia:EndDateTime': {
+        'rdfs:label@en': 'start date and time',
+        'rdfs:comment@en': 'ISO 8601 formatted start date and time',
+        '@type': 'xsd:dateTime'
+    }
+}
