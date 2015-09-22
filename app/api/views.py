@@ -17,7 +17,7 @@ from ..models import NormalizedMetadata
 def metadata():
     """Handle get and push requests coming to metadata server"""
 
-    docs = NormalizedMetadata.objects()[:1000]
+    docs = NormalizedMetadata.objects()[8000:8100]
 
     formatted_docs = [
 

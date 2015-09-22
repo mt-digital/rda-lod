@@ -43,7 +43,9 @@ class NormalizedMetadata(db.Document):
     identifier = db.StringField(max_length=100)
 
     # allow a list of standards in case they do indeed meet multiple standards
-    metadata_standard = db.EmbeddedDocumentField('MetadataStandard')
+    metadata_standard = db.ListField(
+        db.EmbeddedDocumentField('MetadataStandard')
+    )
 
     meta = {
         'indexes': [
