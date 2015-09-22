@@ -39,8 +39,6 @@ class NormalizedMetadata(db.Document):
     title = db.StringField(required=True)
     start_datetime = db.DateTimeField(required=True)
     end_datetime = db.DateTimeField(required=True)
-    abstract = db.StringField()
-    geo_center = db.PointField()
 
     identifier = db.StringField(max_length=100)
 
@@ -61,17 +59,26 @@ class NormalizedMetadata(db.Document):
         Use metadata_standard.specification_root to build an expanded jsonld
         metadata record
         """
-        self_json = json.loads(self.to_json())
+        namespaced = {
+            'dct:title': self.title,
+            'dbpedia:StartDateTime': self.start_datetime.isoformat(),
+            'dbpedia:EndDateTime': self.end_datetime.isoformat(),
 
-        return jsonld.compact(non_ld, context, {'expandContext': context})
+            'dcat:accessURL':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}'.format(self.id),
 
+            'dcat:downloadURL':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}/raw'.format(self.id),
 
-HCLS_NORMALIZED_MAPPABLE = {
-    'title': 'dct:title',
-    'start_datetime': 'dbpedia:StartDateTime',
-    'end_datetime': 'dbpedia:EndDateTime',
-    'geo_center': 'lidd:geo_center'
-}
+            'void:dataDump':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}/rdf'.format(self.id)
+        }
+
+        context = HCLS_PLUS_CONTEXT
+        return jsonld.compact(namespaced, context, {'expandContext': context})
 
 
 # not all used, but these are all from
@@ -91,6 +98,7 @@ HCLS_PLUS_CONTEXT = {
     'sd': 'http://www.w3.org/ns/sparql-service-description#',
     'xsd': 'http://www.w3.org/2001/XMLSchema#',
     'vann': 'http://purl.org/vocab/vann/',
+    'void': 'http://rdfs.org/ns/void#',
 
     # non-hcls
     'lidd': 'https://mt.northwestknowledge.net/lidd/terms#',
