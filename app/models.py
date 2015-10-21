@@ -1,7 +1,12 @@
 """
 Normalized metadata model for the app. Over time the NormalizedMetadata class
 will be a MongoEngine representation of a valid JSON-LD document.
+
+Author: Matthew Turner <maturner@uidaho.edu>
+Date: 9/17/2015
 """
+from pyld import jsonld
+
 from . import db
 
 
@@ -18,6 +23,7 @@ class MetadataStandard(db.EmbeddedDocument):
     http://example.com/api/doc/field_definitions#start_date
     """
     name = db.StringField(max_length=20, required=True)
+    # reference to be used for non-specification documentation
     reference = db.URLField()
 
 
@@ -33,28 +39,80 @@ class NormalizedMetadata(db.Document):
     title = db.StringField(required=True)
     start_datetime = db.DateTimeField(required=True)
     end_datetime = db.DateTimeField(required=True)
-    abstract = db.StringField()
-    geo_center = db.PointField()
 
     identifier = db.StringField(max_length=100)
 
     # allow a list of standards in case they do indeed meet multiple standards
     metadata_standard = db.ListField(
-        db.EmbeddedDocumentField('MetadataStandard'))
+        db.EmbeddedDocumentField('MetadataStandard')
+    )
 
     meta = {
         'indexes': [
             'title',
             '$title',
             ('start_datetime', 'end_datetime'),
-            # ('geo_center', '2dsphere')
         ],
         'allow_inheritance': True
     }
 
-    def format_dates(self):
+    def to_jsonld(self):
         """
-        Our web form needs the date to be in YYYY-MM-DD (ISO 8601)
+        Use metadata_standard.specification_root to build an expanded jsonld
+        metadata record
         """
-        for el in [self.start_date, self.end_date, self.first_pub_date]:
-            el = el.isoformat()
+        namespaced = {
+            'dct:title': self.title,
+            'dbpedia:StartDateTime': self.start_datetime.isoformat(),
+            'dbpedia:EndDateTime': self.end_datetime.isoformat(),
+
+            'dcat:accessURL':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}'.format(self.id),
+
+            'dcat:downloadURL':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}/raw'.format(self.id),
+
+            'void:dataDump':
+                'https://mt.northwestknowledge.net'
+                '/lidd/api/metadata/{}/rdf'.format(self.id)
+        }
+
+        context = HCLS_PLUS_CONTEXT
+        return jsonld.compact(namespaced, context, {'expandContext': context})
+
+
+# not all used, but these are all from
+HCLS_PLUS_CONTEXT = {
+    'cito': 'http://purl.org/spar/cito/',
+    'dcat': 'http://www.w3.org/ns/dcat#',
+    'dctypes': 'http://purl.org/dc/dcmitype/',
+    'dct': 'http://purl.org/dc/terms/',
+    'foaf': 'http://xmlns.com/foaf/0.1/',
+    'freq': 'http://purl.org/cld/freq/',
+    'idot': 'http://identifiers.org/terms#',
+    'lexvo': 'http://lexvo.org/ontology#',
+    'pav': 'http://purl.org/pav/',
+    'prov': 'http://www.w3.org/ns/prov#',
+    'rdf': 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    'rdfs': 'http://www.w3.org/2000/01/rdf-schema#',
+    'sd': 'http://www.w3.org/ns/sparql-service-description#',
+    'xsd': 'http://www.w3.org/2001/XMLSchema#',
+    'vann': 'http://purl.org/vocab/vann/',
+    'void': 'http://rdfs.org/ns/void#',
+
+    # non-hcls
+    'lidd': 'https://mt.northwestknowledge.net/lidd/terms#',
+    'dbpedia': 'http://mappings.dbpedia.org/index.php/OntologyProperty:',
+    'dbpedia:StartDateTime': {
+        'rdfs:label@en': 'start date and time',
+        'rdfs:comment@en': 'ISO 8601 formatted start date and time',
+        '@type': 'xsd:dateTime'
+    },
+    'dbpedia:EndDateTime': {
+        'rdfs:label@en': 'start date and time',
+        'rdfs:comment@en': 'ISO 8601 formatted start date and time',
+        '@type': 'xsd:dateTime'
+    }
+}

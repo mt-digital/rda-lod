@@ -5,6 +5,10 @@ html *
   font-family: 'Quattrocento Sans', sans-serif;  
 }
 
+p {
+  font-size: 1.4em;
+}
+
 .center-img {
   display: block;
 }
@@ -53,6 +57,7 @@ h1#record-title {
 #brand {
   color:#444;
   margin-left:19px;
+  text-decoration: underline;
 }
 
 #nav-button {
@@ -67,4 +72,6 @@ h3#search {
   width: 80%;
   margin-left: auto;
   margin-right: auto;
-}
+} 
+
+/* Glyph, by Harry Roberts */ hr.style-eight { padding: 0; border: none; border-top: medium double #333; color: #333; text-align: center; } hr.style-eight:after { content: "§"; display: inline-block; position: relative; top: -0.7em; font-size: 1.5em; padding: 0 0.25em; } background: #C6DEFF; }

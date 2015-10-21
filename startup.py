@@ -1,4 +1,4 @@
-#!venv/bin/python
+#! /usr/local/bin/python
 import time
 from subprocess import Popen
 

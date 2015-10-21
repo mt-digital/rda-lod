@@ -37,6 +37,13 @@
 
           <ul class="nav navbar-nav">
             <li><a href="/lidd" id="nav-button">LIDD</a></li>
+            <li><a href="https://github.com/mtpain/rda-lod/issues/new" 
+                   id="nav-button">Feedback</a></li>
+            <li>
+              <a href="mailto:maturner01@gmail.com" id="nav-button">
+                  Contact the developer
+              </a>
+            </li>
             </ul>
 
             <ul class="nav navbar-nav navbar-right">
@@ -61,8 +68,39 @@
   <div class="jumbotron text-center">
     <img src="figures/logo.png" alt="LIDD" width="90%">
   </div>
-  
-  <h3>Records found: {{ resultCount }}</h3>
+
+<hr class='style-eight'/>
+
+  <div class="info">
+    <h2 style="text-decoration: underline">A full system prototype for interdisciplinary research</h2>
+    <p>
+      What's currently here is a complete minimum viable product that's a response
+      the challenge of the Research Data Alliance to build a system that 
+      will enable researchers to discover interdisciplinary data from diverse 
+      repositories. While this is the basic requirement, we operate on the
+      hypothesis that linked data standards and the W3C standard of standards
+      <a href="http://www.w3.org/TR/hcls-dataset/">
+        Health Care and Life Sciences (HCLS) Community Profile
+      </a>
+      will be useful.
+    </p>
+    <p>
+      While these new techniques may prove useful, we first aim to make 
+      something useful.  To this end, we provide this front end search interface
+      for users who just want to find useful, related data.  Currently you can
+      search titles and filter based on the metadata standard, which currently are
+      DDI records from <a href="https://www.icpsr.umich.edu/">ICPSR</a> and EML metadata retrieved from
+      <a href="https://www.dataone.org/">DataONE</a>. The immediate next metadata
+      standard we will normalize will be DataONE's Dublin Core and DataONE's 
+      FGDC metadata.
+    </p>
+    <p>
+      For developers we provide full, transparent access to our 
+      <a href="https://mt.northwestknowledge.net/lidd/api">metadata API</a>.    
+    </p>
+  </div>
+
+<hr class='style-eight'/>
   
   <form ng-submit="search()">
     <div class="row">
@@ -81,7 +119,9 @@
   
 
   <!-- View of current metadata records -->
-<a class="anchor" name="list"><h1 name="list">Listing of Current Metadata Records</h1></a>  
+  <a class="anchor" name="list"><h1 name="list">Listing of Current Metadata Records</h1></a>  
+  <h3>{{ resultCount }} records found</h3>
+  
 
   <table class="table table-striped">
     <thead>
@@ -112,6 +152,14 @@
             class="btn btn-default"
             href="{{ mdRecord.raw }}">
             raw
+          </a>
+          <a
+            class="btn btn-default"
+            href="{{ mdRecord.permalink }}/jsonld">JSON-LD</a>
+          <a
+            class="btn btn-default"
+            href="{{ mdRecord.permalink }}/rdf">
+            RDF NQUADS
           </a>
         </div>
       </td>

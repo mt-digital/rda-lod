@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en" ng-app="metadataEditor" ng-controller="MetadataCtrl">
+<head>
+  <meta charset="utf-8">
+  <!--<title ng-bind-template="The query: {{query}}"></title>-->
+  <title>LIDD</title>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="metadata.css">
+  <link rel="stylesheet" href="bower_components/octicons/octicons/octicons.css">
+  <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.css"/>
+  <script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+  <script type="text/javascript" 
+          src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="bower_components/angular/angular.js"></script>
+  <script type="text/javascript" src="bower_components/angular-ui-date/src/date.js"></script>
+  <script type="text/javascript" src="bower_components/underscore/underscore-min.js"></script>
+  <script src="js/controllers.js"></script>
+</head>
+
+<body>
+<!--<body ng-controller="PhoneListCtrl">-->
+
+  <nav class="navbar navbar-default navbar-fixed-top" id="custom-navbar">
+      <div class="container-fluid">
+        <div class="navbar-header">
+
+          <button tabindex=24 class="navbar-toggle collapsed" aria-controls="navbar" aria-expanded="false" data-target="#navbar" data-toggle="collapse" type="button"><span class="sr-only">Toggle menu</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+          </button>
+
+      </div>
+
+        <div id="navbar" class="navbar-collapse collapse">
+
+          <ul class="nav navbar-nav">
+            <li><a href="/lidd" id="nav-button">LIDD</a></li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+              <li>
+                <a href="/lidd/api">Access the API</a>
+              </li>
+              <li>
+                <a href="https://github.com/mtpain/rda-lod">
+                  <span class="octicon octicon-mark-github"></span>
+                </a>
+              </li>
+            </ul>
+
+        </div>
+        
+      </div>
+    </nav>
+
+    <h2 id="brand">LIDD Vocabulary</h2>
+
+<div id="main-container" class="container">
+  <a class="anchor" name="geo_center">
+    <h2>lidd:geo_center</h2>
+    <p>
+      The geographic center of the geographic coverage. Used instead of
+      bounding box because it is potentially more useful for calculating 
+      nearness of the collection range for datasets.
+    </p>
+  </a>
+</div>
+</body>
+</html>

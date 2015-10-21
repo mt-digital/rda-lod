@@ -2,9 +2,11 @@
 import json
 import dateutil.parser as dup
 
+from cgi import escape
 from flask import request, jsonify, Response
 from flask import current_app as app
 from flask_cors import cross_origin
+from pyld import jsonld
 
 from . import api
 from ..models import NormalizedMetadata
@@ -55,7 +57,6 @@ def _format_normal_metadata(document):
     return {
         'id': str(document.id),
         'title': document.title,
-        'abstract': document.abstract,
         'native_identifier': document.identifier,
         'raw':
             'http://{}{}/api/metadata/{}/raw'.format(request.host,
@@ -65,7 +66,6 @@ def _format_normal_metadata(document):
                                                  append, document.id),
         'start_datetime': document.start_datetime.isoformat(),
         'end_datetime': document.end_datetime.isoformat(),
-        'geo_center': document.geo_center,
         'metadata_standards': document.metadata_standard
     }
 
@@ -211,6 +211,33 @@ def get_single_xml_metadata(_oid):
     raw_xml_string = json.loads(record.to_json())['raw']
 
     return Response(raw_xml_string, 200, mimetype='application/xml')
+
+
+@api.route('/api/metadata/<string:_oid>/jsonld')
+@cross_origin(origin='*', methods=['GET'])
+def get_single_jsonld_metadata(_oid):
+    """Get the common XML representation of the metadata record with
+       given id.
+    """
+    record = NormalizedMetadata.objects.get_or_404(pk=_oid)
+
+    jld = record.to_jsonld()
+
+    return jsonify(jld)
+
+
+@api.route('/api/metadata/<string:_oid>/rdf')
+@cross_origin(origin='*', methods=['GET'])
+def get_single_nquads_metadata(_oid):
+    """Get the common XML representation of the metadata record with
+       given id.
+    """
+    record = NormalizedMetadata.objects.get_or_404(pk=_oid)
+
+    jld = record.to_jsonld()
+    rdf_string = jsonld.to_rdf(jld, options={'format': 'application/nquads'})
+
+    return Response(escape(rdf_string))
 
 
 MD_STD_DICT = {

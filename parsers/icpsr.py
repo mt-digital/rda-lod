@@ -31,20 +31,41 @@ def make_normalized_icpsr(icpsr_file=None):
         abstract = _extract_abstract(raw)
         identifier = _extract_identifier(raw)
 
-        document_str = json.dumps(
-            dict(raw=raw.text,
-                 title=title,
-                 abstract=abstract,
-                 identifier=identifier,
-                 geo_center=geo_center,
-                 start_datetime=start_date.isoformat(),
-                 end_datetime=end_date.isoformat(),
-                 metadata_standard=[{'name': 'DDI', 'reference': DDI_DOC_URL}]
-                 )
+        doc = dict(
+            raw=raw.text,
+            title=title,
+            abstract=abstract,
+            identifier=identifier,
+            geo_center=geo_center,
+            start_datetime=start_date.isoformat(),
+            end_datetime=end_date.isoformat(),
+            metadata_standard=[{
+                'name': 'DDI', 'reference': DDI_DOC_URL
+                }]
+            )
+
+        # the normalized context is common among all records, by definition
+        document_str = json.dumps(doc=normalized,
+                                  native_context=DDI_NORMALIZED_FIELDS
         )
 
         return NormalizedMetadata.from_json(document_str)
 
+
+DDI_NORMALIZED_CONTEXT = Context.from_json(
+    {
+        'title': DDI_SPEC_BASE + 'titl',
+        'start_datetime': DDI_SPEC_BASE + 'timePrd-start',
+        'end_datetime': DDI_SPEC_BASE + 'timePrd-start',
+        'native_identifier': DDI_SPEC_BASE + 'IDNo',
+        'abstract': DDI_SPEC_BASE + 'abstract'
+    }
+)
+
+
+DDI_SPEC_BASE = \
+    'http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/'\
+    'field_level_documentation_files/schemas/codebook_xsd/elements/'
 
 def _extract_title(raw_icpsr):
     md = raw_icpsr.metadata_dict
@@ -229,3 +250,4 @@ def _get_time_periods(raw_icpsr):
         end_time = datetime(3000, 1, 1)
 
     return start_time, end_time
+}
