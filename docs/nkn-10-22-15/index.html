@@ -42,6 +42,13 @@
         <h4>* How can linked data improve this discovery and management?</h4>
       </section>
 
+      <section>
+        <h2>ICPSR</h2>
+        <p>social science data</p>
+        <h2>DataONE</h2>
+        <p>Geospatial, environmental, ecological</p>
+      </section>
+
 
       <section>
         <h2>A flexible, reusable system</h2>
@@ -95,7 +102,7 @@
 
 
       <section>
-        <h2>DataONE: EML, Dublin Core, ISO 19115</h2>
+        <h2>DataONE: EML, Dublin Core, FGDC</h2>
         <h4>EML - Ecological Metadata Language</h4>
         <p>Easy to parse guided by 
         <a href="https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1">
@@ -108,9 +115,80 @@
         <img src="images/normalize_scheme.png" alt=""/>
       </section>
 
+
+      <section>
+        <h2>Normalized Metadata</h2>
+        <a href="https://github.com/mtpain/rda-lod/blob/master/app/models.py">app/models.py</a>
+        <pre class="stretch"><code class="python hljs" data-trim>
+class NormalizedMetadata(db.Document):
+    """
+    Model served by the API to consumers. It has been normalized: parsed from
+    whatever the metadata's native format and extracted to the currently
+    supported terms. Imported to ../parsers for creating app-ready normalized
+    metadata.
+    """
+    raw = db.StringField(required=True)
+
+    title = db.StringField(required=True)
+    start_datetime = db.DateTimeField(required=True)
+    end_datetime = db.DateTimeField(required=True)
+
+    identifier = db.StringField(max_length=100)
+
+    # allow a list of standards in case they do indeed meet multiple standards
+    metadata_standard = db.ListField(
+        db.EmbeddedDocumentField('MetadataStandard')
+    )
+        </code></pre>
+      </section>
+
+      <section>
+        <h2>ICPSR Parser</h2>
+        <a href="https://github.com/mtpain/rda-lod/blob/master/parsers/icpsr.py">parsers/icpsr.py</a>
+        <pre class="stretch"><code class="python hljs">
+...
+
+from app.models import NormalizedMetadata
+
+...
+
+def make_normalized_icpsr(icpsr_file=None):
+
+      raw = RawICPSR(icpsr_file)
+      date_range = NormalizedDateEntry(raw)
+      geo_center = _extract_geo_center(raw)
+      start_date = date_range.start_time
+      end_date = date_range.end_time
+
+      title = _extract_title(raw)
+      abstract = _extract_abstract(raw)
+      identifier = _extract_identifier(raw)
+
+      doc = dict(
+          raw=raw.text,
+          title=title,
+          abstract=abstract,
+          identifier=identifier,
+          geo_center=geo_center,
+          start_datetime=start_date.isoformat(),
+          end_datetime=end_date.isoformat(),
+          metadata_standard=[{
+              'name': 'DDI', 'reference': DDI_DOC_URL
+              }]
+          )
+
+      # the normalized context is common among all records, by definition
+      document_str = json.dumps(doc=normalized,
+                                native_context=DDI_NORMALIZED_FIELDS
+      )
+
+      return NormalizedMetadata.from_json(document_str)
+        </code></pre>
+      </section>
+
       
       <section>
-        <h2>Linked, Normalized Metadata (HCLS)</h2>
+        <h2>HCLS: W3C Linked Metadata Guidance</h2>
         <a href="http://www.w3.org/2001/sw/hcls/notes/hcls-dataset/">HCLS - Health Care and Life Sciences W3C</a>
         <p>
             "a guide to indicate what are the essential metadata, and the manner 
@@ -133,51 +211,102 @@
         </a>
           <pre class="stretch"><code class="json hljs" data-trim>
 {
-    "@context": 
-{
-    "cito": "http://purl.org/spar/cito/",
-    "dbpedia": "http://mappings.dbpedia.org/index.php/OntologyProperty:",
-    "dbpedia:EndDateTime": 
-{
-    "@type": "xsd:dateTime",
-    "rdfs:comment@en": "ISO 8601 formatted start date and time",
-    "rdfs:label@en": "start date and time"
-},
-"dbpedia:StartDateTime": 
-        {
-            "@type": "xsd:dateTime",
-            "rdfs:comment@en": "ISO 8601 formatted start date and time",
-            "rdfs:label@en": "start date and time"
-        },
-        "dcat": "http://www.w3.org/ns/dcat#",
-        "dct": "http://purl.org/dc/terms/",
-        "dctypes": "http://purl.org/dc/dcmitype/",
-        "foaf": "http://xmlns.com/foaf/0.1/",
-        "freq": "http://purl.org/cld/freq/",
-        "idot": "http://identifiers.org/terms#",
-        "lexvo": "http://lexvo.org/ontology#",
-        "lidd": "https://mt.northwestknowledge.net/lidd/terms#",
-        "pav": "http://purl.org/pav/",
-        "prov": "http://www.w3.org/ns/prov#",
-        "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        "sd": "http://www.w3.org/ns/sparql-service-description#",
-        "vann": "http://purl.org/vocab/vann/",
-        "void": "http://rdfs.org/ns/void#",
-        "xsd": "http://www.w3.org/2001/XMLSchema#"
+  "@context": 
+  {
+  "cito": "http://purl.org/spar/cito/",
+  "dbpedia": "http://mappings.dbpedia.org/index.php/OntologyProperty:",
+  "dbpedia:EndDateTime": 
+    {
+      "@type": "xsd:dateTime",
+      "rdfs:comment@en": "ISO 8601 formatted start date and time",
+      "rdfs:label@en": "start date and time"
     },
-    "dbpedia:EndDateTime": "1997-11-08T00:00:00",
-    "dbpedia:StartDateTime": "1997-07-08T00:00:00",
-    "dcat:accessURL": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb",
-    "dcat:downloadURL": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb/raw",
-    "dct:title": "Experiment to Enhance the Reporting of Drug Use by Arrestees in Cleveland, Detroit, and Houston, 1997",
-    "void:dataDump": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb/rdf"
+  "dbpedia:StartDateTime": 
+    {
+      "@type": "xsd:dateTime",
+      "rdfs:comment@en": "ISO 8601 formatted start date and time",
+      "rdfs:label@en": "start date and time"
+    },
+    "dcat": "http://www.w3.org/ns/dcat#",
+    "dct": "http://purl.org/dc/terms/",
+    "dctypes": "http://purl.org/dc/dcmitype/",
+    "foaf": "http://xmlns.com/foaf/0.1/",
+    "freq": "http://purl.org/cld/freq/",
+    "idot": "http://identifiers.org/terms#",
+    "lexvo": "http://lexvo.org/ontology#",
+    "lidd": "https://mt.northwestknowledge.net/lidd/terms#",
+    "pav": "http://purl.org/pav/",
+    "prov": "http://www.w3.org/ns/prov#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "sd": "http://www.w3.org/ns/sparql-service-description#",
+    "vann": "http://purl.org/vocab/vann/",
+    "void": "http://rdfs.org/ns/void#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#"
+  }, //end of context
+  "dbpedia:EndDateTime": "1997-11-08T00:00:00",
+  "dbpedia:StartDateTime": "1997-07-08T00:00:00",
+  "dcat:accessURL": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb",
+  "dcat:downloadURL": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb/raw",
+  "dct:title": "Experiment to Enhance the Reporting of Drug Use by Arrestees in Cleveland, Detroit, and Houston, 1997",
+  "void:dataDump": "https://mt.northwestknowledge.net/lidd/api/metadata/55ef8b96933da5757a9c83eb/rdf"
 }          
           </code></pre>
       </section>
 
 
+      <section>
+        <h2>JSON-LD, HCLS, Normalized Metadata</h2>
+        <p>Implemented as class method of <span><code>NormalizedMetadata</code></span><p>
+        <pre style="font-size:16px" class="stretch"><code class="python hljs" data-trim>
+from pyld import jsonld
+
+...
+
+class NormalizedMetadata:
+
+...
+
+  def to_jsonld(self):
+      """
+      Use metadata_standard.specification_root to build an expanded jsonld
+      metadata record
+      """
+      namespaced = {
+          'dct:title': self.title,
+          'dbpedia:StartDateTime': self.start_datetime.isoformat(),
+          'dbpedia:EndDateTime': self.end_datetime.isoformat(),
+
+          'dcat:accessURL':
+              'https://mt.northwestknowledge.net'
+              '/lidd/api/metadata/{}'.format(self.id),
+
+          'dcat:downloadURL':
+              'https://mt.northwestknowledge.net'
+              '/lidd/api/metadata/{}/raw'.format(self.id),
+
+          'void:dataDump':
+              'https://mt.northwestknowledge.net'
+              '/lidd/api/metadata/{}/rdf'.format(self.id)
+      }
+
+      context = HCLS_PLUS_CONTEXT
+      return jsonld.compact(namespaced, context, {'expandContext': context})
+        </code></pre>
+      </section>
+
+
+      <section>
+        <h1>Technology stack: Why MongoDB, Flask, and Angular?</h1>
+        <ol>
+          <li>MongoDB: Freedom, more intuitive data model</li>
+          <li>Flask: Freedom and Python</li>
+          <li>Angular: Templating and transparent data/DOM binding</li>
+        </ol>
+      </section>
+
     <!-- End of slides -->
+
     </div>
   </div>
 
@@ -200,17 +329,17 @@
 
       // Optional reveal.js plugins
       dependencies: [
-              { src: 'reveal.js/lib/js/classList.js', 
-                condition: function() { return !document.body.classList; } },
-              { src: 'reveal.js/plugin/markdown/marked.js', 
-                condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-              { src: 'reveal.js/plugin/markdown/markdown.js', 
-                condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-              { src: 'reveal.js/plugin/highlight/highlight.js', async: true, 
-                condition: function() { return !!document.querySelector( 'pre code' ); }, 
-                callback: function() { hljs.initHighlightingOnLoad(); } },
-              { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true },
-              { src: 'reveal.js/plugin/notes/notes.js', async: true }
+        { src: 'reveal.js/lib/js/classList.js', 
+          condition: function() { return !document.body.classList; } },
+        { src: 'reveal.js/plugin/markdown/marked.js', 
+          condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'reveal.js/plugin/markdown/markdown.js', 
+          condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+        { src: 'reveal.js/plugin/highlight/highlight.js', async: true, 
+          condition: function() { return !!document.querySelector( 'pre code' ); }, 
+          callback: function() { hljs.initHighlightingOnLoad(); } },
+        { src: 'reveal.js/plugin/zoom-js/zoom.js', async: true },
+        { src: 'reveal.js/plugin/notes/notes.js', async: true }
       ]
     });
 
