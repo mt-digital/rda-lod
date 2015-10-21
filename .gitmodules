@@ -1,0 +1,3 @@
+[submodule "docs/nkn-10-22-15/reveal.js"]
+	path = docs/nkn-10-22-15/reveal.js
+	url = https://github.com/hakimel/reveal.js.git

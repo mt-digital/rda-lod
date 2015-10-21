@@ -6,3 +6,4 @@ venv
 *.pyc
 frontend/bower_components/
 *.log
+docs/nkn-10-22-15/node_modules/*
