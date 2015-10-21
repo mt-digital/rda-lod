@@ -57,6 +57,7 @@ h1#record-title {
 #brand {
   color:#444;
   margin-left:19px;
+  text-decoration: underline;
 }
 
 #nav-button {
