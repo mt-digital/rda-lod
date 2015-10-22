@@ -6,6 +6,9 @@
   <meta name="description" content="A framework for easily creating beautiful presentations using HTML">
   <meta name="author" content="Matthew Turner">
 
+    <style>
+      .outline { text-decoration: underline; }
+    </style>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="white-translucent" />
 
@@ -33,6 +36,7 @@
       <section>
         <h2>LIDD: Linked Interdisciplinary Data Discovery</h2>
         <img src="images/lidd_branding.png" alt=""/>
+        <blockquote class="fragment">Aim for the chopping block</blockquote>
       </section>
 
 
@@ -43,34 +47,40 @@
       </section>
 
       <section>
-        <h2>ICPSR</h2>
-        <p>social science data</p>
-        <h2>DataONE</h2>
-        <p>Geospatial, environmental, ecological</p>
+        <h2 class="outline">Outline</h2>
+        <h3>ICPSR</h3>
+        <p>social science</p>
+        <h3>DataONE</h3>
+        <p>geospatial, environmental, ecological</p>
       </section>
 
 
       <section>
-        <h2>A flexible, reusable system</h2>
-        <p>Model-View-Controller (MVC) with MongoDB, Flask, Angular.JS</p>
-        <p>Roughly...</p>
-        <ol>
-          <li>Model: MongoDB/flask-mongoengine</li>
-          <li>View: API endpoints from Flask and Angular.JS templates</li>
-          <li>Controller: Flask on backend and Angular.JS controllers on front end</li>
-          <li>Focus on scalability; separation of model and specifics of any one metadata standard</li>
-        </ol>
-      </section>
-
-
-      <section>
-        <h2>A flexible, reusable system</h2>
+        <h2 class="outline">Outline</h2>
         <img src="images/tech_schematic.png"/>
       </section>
       
 
       <section>
-        <h2>Outline</h2>
+        <h2 class="outline">Outline</h2>
+        <ol>
+          <li>The Problem: Data interoperability starts with discovery</li>
+          <li>Solving the problem for two metadata standards</li> <!-- metadata enables discovery -->
+          <li>The web app to deliver the solution</li>
+        </ol>
+      </section>
+
+      <section>
+        <h1>
+          Part One: Metadata...
+        </h1>
+          <h3>
+            <ul>
+              <li>Normalization</li> 
+              <li>Harmonization</li>
+              <li>Carpentry (?)</li>
+            </ul>
+          </h3>
       </section>
 
 
@@ -193,10 +203,12 @@ def make_normalized_icpsr(icpsr_file=None):
             "a guide to indicate what are the essential metadata, and the manner 
             in which we can express it"
         </p>
+          <hr/>
         <p>
           Unfortunately HCLS does not explicitly include geographical information.
-          But since it is only meant to encapsulate the <em>essentials</em>, 
-          there is no restriction on adding additional fields. Linked data
+          <hr/>
+        </p>
+          There is no restriction on adding additional fields. Linked data
           allows us to transparently add new fields as long as we define them
           or link to existing definitions...
         </p>
@@ -296,30 +308,99 @@ class NormalizedMetadata:
 
 
       <section>
-        <h1>Technology stack: Why MongoDB, Flask, and Angular?</h1>
+        <h1>Part Two: The Web App</h1>
         <ol>
-          <li>MongoDB: Freedom, more intuitive data model</li>
-          <li>Flask: Freedom and Python</li>
+          <li>MongoDB: Freedom, intuitive data model in a format that can propogate through the whole stack (JSON, GeoJSON)</li>
+          <li>Flask: Flexibility, prototype speed, and Python</li>
           <li>Angular: Templating and transparent data/DOM binding</li>
         </ol>
       </section>
 
-      <section>
-        <h3><a href="https://www.mongodb.org/">MongoDB</a> + 
-            <a href="http://docs.mongoengine.org/">MongoEngine</a>  <br/> +
-            <a href="https://flask-mongoengine.readthedocs.org/en/latest/">Flask-MongoEngine</a>
-        </h3>
 
-        <p>No need for joins in many cases. Simply include an
-          <code>EmbeddedDocument</code>.
+      <section>
+        <h2>Flask REST API</h2>
+        <p>
+          REST - REpresentational State Transfer. Important for us in the 
+          design of our API endpoints, or <em>resources</em>.
         </p>
-        <pre><code class="python hljs">
-           
+        <pre><code class="python hljs" data-trim>
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello World!'
+
+if __name__ == '__main__':
+    app.run() 
+        </code></pre>
+        <p>...save as <code>hello.py</code> and run with python</p>
+        <pre><code class="bash hljs" data-trim>
+$ python hello.py
+ * Running on http://127.0.0.1:5000/
         </code></pre>
       </section>
 
-    <!-- End of slides -->
 
+      <section>
+        <h3>Rubyists are the coolest coder kids...</h3>
+        <img src="images/sinatra.png" alt="Ol' Blue Eyes">
+      </section>
+
+
+      <section>
+        <h2>Surprise Code Review!!!</h2>
+        <a href="https://github.com/mtpain/rda-lod/blob/master/app/api/views.py">
+          app/api/views.py
+        </a>
+      </section>
+
+      
+      <section>
+        <a href="https://docs.angularjs.org/tutorial">
+          <h2>Angular Tutorial</h2>
+        </a>        
+        <p>
+          Learn about Angular plus unit tests, end-to-end testing, 
+          and client-side dependency management.
+        </p>
+        <a href="https://docs.angularjs.org/tutorial">
+          <img src="images/angular_tutorial.png" alt="">
+        </a>
+      </section>
+
+
+      <section>
+        <h2>Suprise Code Review 2!!!</h2>
+
+        <ol>
+          <li>
+            <a href="https://github.com/mtpain/rda-lod/blob/master/frontend/index.html">frontend/index.html</a>
+          </li>
+          <li>
+            <a href="https://github.com/mtpain/rda-lod/blob/master/frontend/js/controllers.js">frontend/js/controllers.js</a>
+          </li>
+        </ol>
+      </section>
+
+
+      <section>
+        <h2>(Back to) the Future</h2>
+        <ol>
+          <li>Support all three DataONE metadata standards</li>
+          <li>
+            Add law data through <a href="https://www.courtlistener.com/api">
+              Court Listener API</a>
+          </li>
+          <li>Add user space with logins from 
+            <a href="http://orcid.org/">ORCiD</a> for personalized data 
+            suggestions based on past research
+          </li>
+        </ol>
+        <img src="images/DocHD.jpg" alt=""/>
+      </section>
+
+    <!-- End of slides -->
     </div>
   </div>
 
@@ -338,7 +419,7 @@ class NormalizedMetadata:
       history: true,
       center: true,
 
-      transition: 'slide', // none/fade/slide/convex/concave/zoom
+      transition: 'convex', // none/fade/slide/convex/concave/zoom
 
       // Optional reveal.js plugins
       dependencies: [
